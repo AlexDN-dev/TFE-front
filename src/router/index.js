@@ -4,6 +4,7 @@ import Recherche from "@/view/Recherche.vue";
 import ListeRecherche from "@/view/ListeRecherche.vue";
 import AnnonceVoiture from "@/view/AnnonceVoiture.vue";
 import AnnonceGarage from "@/view/AnnonceGarage.vue";
+import User from "@/view/User.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -28,6 +29,10 @@ const router =createRouter({
             path: '/annonce/garage',
             component: AnnonceGarage
         },
+        {
+            path: '/user',
+            component: User
+        }
     ]
 })
 
