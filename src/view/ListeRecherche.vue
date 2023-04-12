@@ -5,8 +5,8 @@
       <p>Nous avons pu trouver <span>X</span> annonces par rapport au(x) filtre(s) que vous nous avez indiqué précédemment.</p>
     </div>
     <div class="annonce-container">
-      <router-link to="/annonce/id" class="routing"><AnnonceMini/></router-link>
-      <AnnonceMini/>
+      <router-link to="/annonce/voiture" class="routing"><AnnonceVoitureMini/></router-link>
+      <router-link to="/annonce/garage" class="routing"><AnnonceGarageMini/></router-link>
     </div>
     <el-pagination class="pagination" layout="prev, pager, next" :total="100" />
   </div>
@@ -16,11 +16,12 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
-import AnnonceMini from "@/components/AnnonceMini.vue";
+import AnnonceVoitureMini from "@/components/AnnonceVoitureMini.vue";
+import AnnonceGarageMini from "@/components/AnnonceGarageMini.vue";
 
 export default {
   name: "ListeRecherche",
-  components: {AnnonceMini, Footer, Navbar}
+  components: {AnnonceGarageMini, AnnonceVoitureMini, Footer, Navbar}
 }
 </script>
 <style scoped>

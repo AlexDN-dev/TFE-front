@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from "vue-router"
 import Accueil from "@/view/Accueil.vue";
 import Recherche from "@/view/Recherche.vue";
 import ListeRecherche from "@/view/ListeRecherche.vue";
-import Annonce from "@/view/Annonce.vue";
+import AnnonceVoiture from "@/view/AnnonceVoiture.vue";
+import AnnonceGarage from "@/view/AnnonceGarage.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -20,9 +21,13 @@ const router =createRouter({
             component: ListeRecherche
         },
         {
-            path: '/annonce/id',
-            component: Annonce
-        }
+            path: '/annonce/voiture',
+            component: AnnonceVoiture
+        },
+        {
+            path: '/annonce/garage',
+            component: AnnonceGarage
+        },
     ]
 })
 

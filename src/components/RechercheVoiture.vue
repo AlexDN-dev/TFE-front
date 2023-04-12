@@ -7,7 +7,7 @@
     <p>Le prix maximum</p>
     <p v-if="!isValable" class="attention">Merci d'entrer un nombre entier positif valable !</p>
     <el-input v-model="maxPrix" class="selector"/>
-    <a class="btn">Rechercher</a>
+    <router-link to="/recherche/resultats/" class="btn"><a>Rechercher</a></router-link>
   </div>
   <el-checkbox label="affiner la recherche" v-model="enableFilter" class="checkbox"/>
   <div class="moreFilters" v-if="enableFilter">
@@ -187,6 +187,8 @@ export default {
     padding: 10px 15px;
     border-radius: 25px;
     cursor: pointer;
+    text-decoration: none;
+    color: black;
   }
   .checkbox {
     margin-left: 15px;

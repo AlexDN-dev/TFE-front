@@ -27,6 +27,54 @@
       </div>
     </div>
   </div>
+  <div class="main-informations">
+    <h3>Informations principales</h3>
+    <div class="info">
+      <div class="informations-container">
+        <p style="font-weight: bold">Kilométrage</p>
+        <p>126.000 km</p>
+      </div>
+      <div class="informations-container">
+        <p style="font-weight: bold">Année de production</p>
+        <p>06/2011</p>
+      </div>
+      <div class="informations-container">
+        <p style="font-weight: bold">Puissance</p>
+        <p>400 kW (544CH)</p>
+      </div>
+      <div class="informations-container">
+        <p style="font-weight: bold">Autonomie</p>
+        <p>300Km</p>
+      </div>
+    </div>
+  </div>
+  <el-divider/>
+  <div>
+      <h3>Informations supplémentaires</h3>
+    <div class="secondary-informations-container">
+      <div class="secondary-informations">
+        <div>
+          <p>Nombre de propriétaire(s) précédent(s) : </p><span>2</span>
+        </div>
+        <div>
+          <p>Nombre de portes :</p><span>5</span>
+        </div>
+        <div>
+          <p>Type de véhicule : </p><span>Berline</span>
+        </div>
+        <p>Liste d'équipement :</p>
+        <ul>
+          <li>Vitre électrique</li>
+          <li>Start and stop</li>
+          <li>Bluetooth</li>
+        </ul>
+      </div>
+      <div class="description-container">
+        <p>Description du vendeur</p>
+        <p>Voiture en parfait état, je souhaite la vendre car j'aimerais passer à autre chose.</p>
+      </div>
+    </div>
+  </div>
   <Footer/>
 </template>
 
@@ -35,7 +83,7 @@ import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
 
 export default {
-  name: "Annonce",
+  name: "AnnonceVoiture",
   components: {Footer, Navbar},
   data() {
     return {
@@ -101,5 +149,73 @@ export default {
     position: absolute;
     right: 15px;
     top: 15px;
+  }
+  h3 {
+    margin-left: 10px;
+    font-size: 1.5rem;
+  }
+  .info {
+    display: flex;
+    justify-content: space-evenly;
+  }
+  .informations-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  .informations-container p {
+    margin: 5px;
+  }
+  .secondary-informations-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  .secondary-informations {
+    margin-left: 10px;
+  }
+  .secondary-informations div {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .secondary-informations div span {
+    position: relative;
+    margin-left: 5px;
+    top: 1px;
+    font-weight: bold;
+  }
+  .secondary-informations li {
+    margin: 2px;
+  }
+  .description-container {
+    width: 450px;
+  }
+  .description-container p:first-child {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  @media screen and (max-width:1024px) {
+    .header {
+      flex-direction: column;
+      align-items: center;
+    }
+    .seller-informations-container {
+      width: 80%;
+      margin: 0;
+    }
+    .info {
+      flex-wrap: wrap;
+    }
+    .secondary-informations-container {
+      flex-wrap: wrap;
+    }
+    .description-container {
+      margin: 10px;
+    }
+  }
+  @media screen and (max-width: 426px) {
+    .info {
+      flex-direction: column;
+    }
   }
 </style>
