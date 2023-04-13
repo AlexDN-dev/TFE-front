@@ -9,6 +9,7 @@ import CreateAnnonce from "@/view/CreateAnnonce.vue";
 import UserSettings from "@/view/UserSettings.vue";
 import GarageSettings from "@/view/GarageSettings.vue";
 import NotificationList from "@/view/NotificationList.vue";
+import Notification from "@/view/Notification.vue"
 
 const router =createRouter({
     history: createWebHistory(),
@@ -52,6 +53,10 @@ const router =createRouter({
         {
             path: '/notifications',
             component: NotificationList
+        },
+        {
+            path: '/notifications/id',
+            component: Notification
         }
     ]
 })
