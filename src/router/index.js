@@ -13,6 +13,8 @@ import Notification from "@/view/Notification.vue"
 import SupportList from "@/view/SupportList.vue";
 import Support from "@/view/Support.vue";
 import Connexion from "@/view/Connexion.vue";
+import Inscription from "@/view/Inscription.vue";
+import Upgrade from "@/view/Upgrade.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -72,6 +74,14 @@ const router =createRouter({
         {
             path: '/connexion',
             component: Connexion
+        },
+        {
+            path: '/inscription',
+            component: Inscription
+        },
+        {
+            path: '/upgrade',
+            component: Upgrade
         }
     ]
 })

@@ -53,6 +53,7 @@ export default {
     color: white;
     border-radius: 10px;
     margin: 20px;
+    cursor: pointer;
   }
   .connexion p {
     margin: 0;
