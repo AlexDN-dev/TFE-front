@@ -7,6 +7,8 @@ import AnnonceGarage from "@/view/AnnonceGarage.vue";
 import User from "@/view/User.vue";
 import CreateAnnonce from "@/view/CreateAnnonce.vue";
 import UserSettings from "@/view/UserSettings.vue";
+import GarageSettings from "@/view/GarageSettings.vue";
+import NotificationList from "@/view/NotificationList.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -42,6 +44,14 @@ const router =createRouter({
         {
             path: '/userSettings',
             component: UserSettings
+        },
+        {
+            path: '/garageSettings',
+            component: GarageSettings
+        },
+        {
+            path: '/notifications',
+            component: NotificationList
         }
     ]
 })

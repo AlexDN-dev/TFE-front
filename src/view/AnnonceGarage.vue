@@ -2,6 +2,11 @@
   <Navbar/>
   <div class="container">
     <div class="informations">
+      <router-link to="/garageSettings">
+        <div class="btn param">
+          <font-awesome-icon icon="fa-solid fa-gear" style="color: #c2c2c2;" />
+        </div>
+      </router-link>
       <h2>Nom du garage</h2>
       <p>Bref description écrite par le gérant de la page.</p>
       <p>Rue du chêne 12, 7000 Mons</p>
@@ -58,7 +63,26 @@ export default {
     flex-wrap: wrap;
     justify-content: center;
   }
+  .btn {
+    border-radius: 10px;
+    text-align: center;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 3px;
+    cursor: pointer;
+    position: absolute;
+    left: 5px;
+    top: 5px;
+  }
+  .param {
+    background-color: gray;
+  }
   .informations {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
