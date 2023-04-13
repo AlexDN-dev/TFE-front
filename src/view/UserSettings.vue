@@ -53,6 +53,7 @@
       <el-input placeholder="Ville"></el-input>
       <el-button>Valider</el-button>
     </div>
+    <el-button type="danger" style="margin: 15px">Supprimer mon compte</el-button>
   </div>
   <Footer/>
 </template>

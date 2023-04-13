@@ -2,9 +2,9 @@
   <Navbar/>
     <h2>Centre de notification</h2>
   <div class="notification-container">
-    <router-link to="/notifications/id" class="router"><Notification/></router-link>
-    <router-link to="/notifications/id" class="router"><Notification/></router-link>
-    <router-link to="/notifications/id" class="router"><Notification/></router-link>
+    <router-link to="/notifications/id" class="router"><NotificationItem/></router-link>
+    <router-link to="/notifications/id" class="router"><NotificationItem/></router-link>
+    <router-link to="/notifications/id" class="router"><NotificationItem/></router-link>
   </div>
   <Footer/>
 </template>
@@ -12,11 +12,11 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
-import Notification from "@/components/Notification.vue";
+import NotificationItem from "@/components/NotificationItem.vue";
 
 export default {
   name: "NotificationList",
-  components: {Notification, Footer, Navbar}
+  components: {NotificationItem, Footer, Navbar}
 }
 </script>
 

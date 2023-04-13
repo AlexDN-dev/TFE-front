@@ -17,7 +17,7 @@
       <router-link to="/"><a>Accueil</a></router-link>
       <router-link to="/recherche"><a>Rechercher</a></router-link>
       <router-link to="/createAnnonce"><a>Vendre</a></router-link>
-      <a href="#">Support</a>
+      <router-link to="/support"><a>Support</a></router-link>
     </div>
   </div>
 </template>

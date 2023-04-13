@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: "Notification",
+  name: "NotificationItem",
   methods: {
     truncateText(text, maxLength) {
       if (text.length > maxLength) {

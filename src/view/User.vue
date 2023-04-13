@@ -17,6 +17,13 @@
         </div>
       </div>
       <div class="parameter-btn-container">
+        <router-link to="/upgrade">
+          <div class="btn upgrade">
+            <el-tooltip content="Améliorer mon compte">
+              <font-awesome-icon icon="fa-solid fa-rocket" style="color: #857b00;" />
+            </el-tooltip>
+          </div>
+        </router-link>
         <router-link to="/userSettings">
           <div class="btn param">
             <el-tooltip content="Paramètres du compte">
@@ -24,11 +31,6 @@
             </el-tooltip>
           </div>
         </router-link>
-        <div class="btn delete-account">
-          <el-tooltip content="Supprimer mon compte">
-            <font-awesome-icon icon="fa-solid fa-trash" style="color: #ff2727;" />
-          </el-tooltip>
-        </div>
       </div>
     </div>
     <h2>Les annonces de Alexandre</h2>
@@ -115,6 +117,9 @@ export default {
   }
   .param {
     background-color: gray;
+  }
+  .upgrade {
+    background-color: #dcdc00;
   }
   .delete-account {
     background-color: #c21a1a;
