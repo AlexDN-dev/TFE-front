@@ -5,6 +5,8 @@ import ListeRecherche from "@/view/ListeRecherche.vue";
 import AnnonceVoiture from "@/view/AnnonceVoiture.vue";
 import AnnonceGarage from "@/view/AnnonceGarage.vue";
 import User from "@/view/User.vue";
+import CreateAnnonce from "@/view/CreateAnnonce.vue";
+import UserSettings from "@/view/UserSettings.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -32,6 +34,14 @@ const router =createRouter({
         {
             path: '/user',
             component: User
+        },
+        {
+            path: '/createAnnonce',
+            component: CreateAnnonce
+        },
+        {
+            path: '/userSettings',
+            component: UserSettings
         }
     ]
 })

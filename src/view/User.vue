@@ -17,11 +17,13 @@
         </div>
       </div>
       <div class="parameter-btn-container">
-        <div class="btn param">
-          <el-tooltip content="Paramètres du compte">
-            <font-awesome-icon icon="fa-solid fa-gear" style="color: #c2c2c2;" />
-          </el-tooltip>
-        </div>
+        <router-link to="/userSettings">
+          <div class="btn param">
+            <el-tooltip content="Paramètres du compte">
+              <font-awesome-icon icon="fa-solid fa-gear" style="color: #c2c2c2;" />
+            </el-tooltip>
+          </div>
+        </router-link>
         <div class="btn delete-account">
           <el-tooltip content="Supprimer mon compte">
             <font-awesome-icon icon="fa-solid fa-trash" style="color: #ff2727;" />
@@ -69,6 +71,7 @@ export default {
     display: flex;
     align-items: center;
     position: relative;
+    margin: 10px;
   }
   .user-informations {
     display: flex;

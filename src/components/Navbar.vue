@@ -16,7 +16,7 @@
     <div class="navbar">
       <router-link to="/"><a>Accueil</a></router-link>
       <router-link to="/recherche"><a>Rechercher</a></router-link>
-      <a href="#">Vendre</a>
+      <router-link to="/createAnnonce"><a>Vendre</a></router-link>
       <a href="#">Support</a>
     </div>
   </div>
