@@ -33,7 +33,7 @@
         <el-table-column prop="date" label="Date" align="center"/>
         <el-table-column label="Action" align="center">
           <template #default="scope">
-            <router-link to="/" class="router">
+            <router-link to="/support/id" class="router">
               <el-button type="info" plain>{{scope.row.id}}</el-button>
             </router-link>
           </template>

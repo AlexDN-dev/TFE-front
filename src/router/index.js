@@ -11,6 +11,8 @@ import GarageSettings from "@/view/GarageSettings.vue";
 import NotificationList from "@/view/NotificationList.vue";
 import Notification from "@/view/Notification.vue"
 import SupportList from "@/view/SupportList.vue";
+import Support from "@/view/Support.vue";
+import Connexion from "@/view/Connexion.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -62,6 +64,14 @@ const router =createRouter({
         {
             path: '/support',
             component: SupportList
+        },
+        {
+            path: '/support/id',
+            component: Support
+        },
+        {
+            path: '/connexion',
+            component: Connexion
         }
     ]
 })

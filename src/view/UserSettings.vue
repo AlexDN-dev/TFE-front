@@ -25,7 +25,7 @@
   <div class="personnal-informations">
     <p>Adresse mail : <span>test@hotmail.be</span></p>
     <p>Date de naissance : 06/07/2001, <span>21 ans</span></p>
-    <p>Adresse : <span>Rue de la croisette, 12 </span><span>6500</span><span>Beaumont</span></p>
+    <p>Adresse : <span>Rue de la croisette, 12 </span><span>6500</span><span> Beaumont</span></p>
   </div>
   <div class="user-informations">
     <div>
