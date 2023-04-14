@@ -15,6 +15,7 @@ import Support from "@/view/Support.vue";
 import Connexion from "@/view/Connexion.vue";
 import Inscription from "@/view/Inscription.vue";
 import Upgrade from "@/view/Upgrade.vue";
+import AdminPanel from "@/view/admin/AdminPanel.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -82,6 +83,10 @@ const router =createRouter({
         {
             path: '/upgrade',
             component: Upgrade
+        },
+        {
+            path: '/admin',
+            component: AdminPanel
         }
     ]
 })

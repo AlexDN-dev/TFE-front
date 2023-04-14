@@ -1,8 +1,13 @@
 <template>
   <div>
     <div class="user-navbar">
-      <div>
+      <div style="display: flex; align-items: center">
         <h2>ElectroAuto</h2>
+        <router-link to="/admin">
+          <div class="admin-btn">
+            <font-awesome-icon icon="fa-solid fa-toolbox" style="color: #8bc34a;" />
+          </div>
+        </router-link>
       </div>
       <div class="user-navbar-btn" v-if="!this.isConnected">
         <el-button type="success" :icon="UserFilled" bg text circle size="large"/>
@@ -84,5 +89,16 @@ export default {
   }
   .navbar a:hover {
     background-color: rgb(230,230,230);
+  }
+  .admin-btn {
+    background-color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 25px;
+    margin-left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
   }
 </style>
