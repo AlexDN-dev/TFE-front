@@ -9,7 +9,7 @@
       </router-link>
     </div>
     <div class="navbar-btn">
-      <router-link to="/" class="router">
+      <router-link to="/admin" class="router">
         <p>Accueil</p>
       </router-link>
       <router-link to="/" class="router">
@@ -61,6 +61,7 @@ export default {
   .navbar-btn {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
   }
   .router {
     text-decoration: none;
