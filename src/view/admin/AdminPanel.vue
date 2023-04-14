@@ -21,7 +21,7 @@
         <p>95</p>
         <font-awesome-icon icon="fa-solid fa-car" size="2x" style="color: #000000;" />
       </div>
-      <h3>Utilisateurs</h3>
+      <h3>Annonces</h3>
     </div>
     <div id="graph-container-2" style="display: flex; justify-content: center">
       <div id="chart-2" class="graphic">
