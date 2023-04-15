@@ -18,7 +18,7 @@
       <router-link to="/" class="router">
         <p>Le support</p>
       </router-link>
-      <router-link to="/" class="router">
+      <router-link to="/admin/user" class="router">
         <p>Les utilisateurs</p>
       </router-link>
       <router-link to="/" class="router">
@@ -26,6 +26,9 @@
       </router-link>
       <router-link to="/" class="router">
         <p>Messagerie</p>
+      </router-link>
+      <router-link to="/" class="router">
+        <p>Paramètres</p>
       </router-link>
     </div>
   </div>
@@ -62,6 +65,7 @@ export default {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    background-color: rgb(245,245,245)
   }
   .router {
     text-decoration: none;

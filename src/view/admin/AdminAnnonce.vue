@@ -2,7 +2,10 @@
   <AdminNavBar/>
   <h2>Les annonces</h2>
   <div class="search">
-    <el-input v-model="searchQuery" placeholder="Rechercher"></el-input>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; width: auto">
+      <el-input v-model="searchQuery" placeholder="Rechercher"></el-input>
+      <el-button style="margin-left: 10px" bg text>Les annonces à valider</el-button>
+    </div>
     <div class="search-btn">
       <el-button @click="previousPage" :disabled="currentPage === 1"><el-icon><Back /></el-icon></el-button>
       <p>page {{ currentPage }}</p>
@@ -14,14 +17,14 @@
       <el-table-column prop="id" label="ID" align="center"></el-table-column>
       <el-table-column prop="title" label="Titre" align="center"></el-table-column>
       <el-table-column prop="owner" label="Propriétaire" align="center"></el-table-column>
-      <el-table-column label="Validé" align="center">
-          <template #default="scope">
-            <p class="closed">{{scope.row.status}}</p>
-          </template>
+      <el-table-column label="Statut" align="center">
+        <template #default="scope">
+          <p class="closed">{{scope.row.status}}</p>
+        </template>
       </el-table-column>
       <el-table-column label="Action" align="center">
         <template #default="scope">
-          <div style="display: flex; flex-wrap: wrap">
+          <div style="display: flex; flex-wrap: wrap; justify-content: center">
             <router-link to="/admin/annonce" class="router">
               <el-button type="primary">
                 <font-awesome-icon :icon="['fas', 'eye']" style="color: #ffffff;" />
@@ -57,7 +60,7 @@ export default {
     return {
       searchQuery: '',
       currentPage: 1,
-      itemsPerPage: 15,
+      itemsPerPage: 10,
       items: [
         { id: 1, title: 'Element 1', status: 'Oui' ,owner: 'Owner 1' },
         { id: 2, title: 'Element 2', owner: 'Owner 2' },
