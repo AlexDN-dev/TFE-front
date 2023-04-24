@@ -15,7 +15,7 @@
       <router-link to="/admin/annonce" class="router">
         <p>Les annonces</p>
       </router-link>
-      <router-link to="/" class="router">
+      <router-link to="/admin/support" class="router">
         <p>Le support</p>
       </router-link>
       <router-link to="/admin/user" class="router">

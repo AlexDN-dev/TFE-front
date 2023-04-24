@@ -18,6 +18,8 @@ import Upgrade from "@/view/Upgrade.vue";
 import AdminPanel from "@/view/admin/AdminPanel.vue";
 import AdminAnnonce from "@/view/admin/AdminAnnonce.vue";
 import AdminUser from "@/view/admin/AdminUser.vue";
+import AdminSupportList from "@/view/admin/AdminSupportList.vue";
+import AdminSupportMessage from "@/view/admin/AdminSupportMessage.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -97,6 +99,14 @@ const router =createRouter({
         {
             path: "/admin/user",
             component: AdminUser
+        },
+        {
+            path: "/admin/support",
+            component: AdminSupportList
+        },
+        {
+            path: "/admin/support/id",
+            component: AdminSupportMessage
         }
     ]
 })
