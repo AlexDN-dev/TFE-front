@@ -27,7 +27,7 @@
       <router-link to="/admin/notification" class="router">
         <p>Messagerie</p>
       </router-link>
-      <router-link to="/" class="router">
+      <router-link to="/admin/parametres" class="router">
         <p>Paramètres</p>
       </router-link>
     </div>
