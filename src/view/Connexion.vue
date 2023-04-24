@@ -4,7 +4,7 @@
   <div class="form">
     <div>
       <p>Mail</p>
-      <el-input></el-input>
+      <el-input v-model="test"></el-input>
     </div>
     <div>
       <p>Mot de passe</p>
@@ -26,7 +26,12 @@ import Footer from "@/components/Footer.vue";
 
 export default {
   name: "Connexion",
-  components: {Footer, Navbar}
+  components: {Footer, Navbar},
+  data(){
+    return {
+      test: ""
+    }
+  }
 }
 </script>
 

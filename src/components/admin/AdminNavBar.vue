@@ -21,7 +21,7 @@
       <router-link to="/admin/user" class="router">
         <p>Les utilisateurs</p>
       </router-link>
-      <router-link to="/" class="router">
+      <router-link to="/admin/garage" class="router">
         <p>Les garages</p>
       </router-link>
       <router-link to="/admin/notification" class="router">

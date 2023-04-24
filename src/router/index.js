@@ -21,6 +21,8 @@ import AdminUser from "@/view/admin/AdminUser.vue";
 import AdminSupportList from "@/view/admin/AdminSupportList.vue";
 import AdminSupportMessage from "@/view/admin/AdminSupportMessage.vue";
 import AdminNotification from "@/view/admin/AdminNotification.vue";
+import AdminGarage from "@/view/admin/AdminGarage.vue";
+import AdminParameters from "@/view/admin/AdminParameters.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -112,6 +114,14 @@ const router =createRouter({
         {
             path: "/admin/notification",
             component: AdminNotification
+        },
+        {
+            path: "/admin/garage",
+            component: AdminGarage
+        },
+        {
+            path: "/admin/parametres",
+            component: AdminParameters
         }
     ]
 })
