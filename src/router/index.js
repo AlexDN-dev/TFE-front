@@ -20,6 +20,7 @@ import AdminAnnonce from "@/view/admin/AdminAnnonce.vue";
 import AdminUser from "@/view/admin/AdminUser.vue";
 import AdminSupportList from "@/view/admin/AdminSupportList.vue";
 import AdminSupportMessage from "@/view/admin/AdminSupportMessage.vue";
+import AdminNotification from "@/view/admin/AdminNotification.vue";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -107,6 +108,10 @@ const router =createRouter({
         {
             path: "/admin/support/id",
             component: AdminSupportMessage
+        },
+        {
+            path: "/admin/notification",
+            component: AdminNotification
         }
     ]
 })
