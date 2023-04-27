@@ -4,19 +4,21 @@
     <div class="informations-container">
       <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" class="avatar"/>
       <div class="user-informations">
-        <p>{{userData.firstname}} {{userData.lastname}}, {{userData.age}} ans</p>
+        <p>{{userData.firstname}} {{userData.lastname}}<span v-if="userData.age !== null">, {{userData.age}} ans</span></p>
         <div class="account-level">
-          <el-tooltip content="Compte de niveau 1">
+          <el-tooltip :content="'Compte de niveau ' + userData.profilLevel">
             <font-awesome-icon icon="fa-solid fa-certificate" style="color: #c7c7c7;" size="2x"/>
           </el-tooltip>
         </div>
         <div class="like-container">
           <p>50,25%</p>
-          <div class="btn like"><font-awesome-icon icon="fa-solid fa-thumbs-up" style="color: #3cc00c;" /></div>
-          <div class="btn like"><font-awesome-icon icon="fa-solid fa-thumbs-down" style="color: #d31b1b;" /></div>
+          <div v-if="!hisAccount" style="display: flex">
+            <div class="btn like"><font-awesome-icon icon="fa-solid fa-thumbs-up" style="color: #3cc00c;" /></div>
+            <div class="btn like"><font-awesome-icon icon="fa-solid fa-thumbs-down" style="color: #d31b1b;" /></div>
+          </div>
         </div>
       </div>
-      <div class="parameter-btn-container">
+      <div class="parameter-btn-container" v-if="hisAccount" >
         <router-link to="/upgrade">
           <div class="btn upgrade">
             <el-tooltip content="Améliorer mon compte">
@@ -37,7 +39,7 @@
     <div class="annonce-container">
       <div class="annonce">
         <AnnonceVoitureMini/>
-        <div class="annonce-btn">
+        <div v-if="hisAccount"  class="annonce-btn">
           <el-tooltip content="Éditer" placement="right">
             <div class="btn edit">
               <font-awesome-icon icon="fa-solid fa-pen" style="color: #8a8a8a;" />
@@ -52,7 +54,7 @@
       </div>
       <div class="annonce">
         <AnnonceVoitureMini/>
-        <div class="annonce-btn">
+        <div v-if="hisAccount"  class="annonce-btn">
           <el-tooltip content="Éditer" placement="right">
             <div class="btn edit">
               <font-awesome-icon icon="fa-solid fa-pen" style="color: #8a8a8a;" />
@@ -67,7 +69,7 @@
       </div>
       <div class="annonce">
         <AnnonceVoitureMini/>
-        <div class="annonce-btn">
+        <div v-if="hisAccount"  class="annonce-btn">
           <el-tooltip content="Éditer" placement="right">
             <div class="btn edit">
               <font-awesome-icon icon="fa-solid fa-pen" style="color: #8a8a8a;" />
@@ -89,18 +91,72 @@
 import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
 import AnnonceVoitureMini from "@/components/AnnonceVoitureMini.vue";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 
 export default {
   name: "User",
   components: {AnnonceVoitureMini, Footer, Navbar},
+  props: {
+    id: {
+      type: Number,
+      required: true
+    }
+  },
   data() {
     return {
       userData: {
-        firstname: "Alexandre",
-        lastname: "De Nève",
-        age: 22
-
+        id: this.id,
+        firstname: "",
+        lastname: "",
+        age: null,
+        profilLevel: null
+      },
+      hisAccount: false
+    }
+  },
+  mounted() {
+    axios.post('http://localhost:3000/users/data', this.userData.id)
+        .then((res) => {
+          this.userData.firstname = res.data.data.firstName
+          this.userData.lastname = res.data.data.lastName
+          this.userData.profilLevel = res.data.data.profilLevel
+          if(res.data.data.age !== null){
+            this.userData.age = this.calculateAge(res.data.data.age)
+          }
+          let token = window.sessionStorage.getItem('token')
+          if(token === null){
+            token = window.localStorage.getItem('token')
+          }
+          axios.post("http://localhost:3000/token", token)
+              .then((res) => {
+                if(this.id === res.data.token.id.toString()){
+                  console.log("ici")
+                  this.hisAccount = true
+                }else {
+                  console.log("par la !")
+                  this.hisAccount = false
+                }
+              }).catch((err) => {
+                ElMessage.error({
+                  message: err,
+                  showClose: true
+                })
+          })
+        }).catch((err) => {
+          console.log(err)
+        })
+  },
+  methods: {
+    calculateAge(birthday) {
+      const birthdate = new Date(birthday);
+      const today = new Date();
+      let age = today.getFullYear() - birthdate.getFullYear();
+      const month = today.getMonth() - birthdate.getMonth();
+      if (month < 0 || (month === 0 && today.getDate() < birthdate.getDate())) {
+        age--;
       }
+      return age;
     }
   }
 }

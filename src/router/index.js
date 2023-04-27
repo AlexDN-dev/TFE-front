@@ -48,8 +48,9 @@ const router =createRouter({
             component: AnnonceGarage
         },
         {
-            path: '/user',
-            component: User
+            path: '/user/:id',
+            component: User,
+            props: true
         },
         {
             path: '/createAnnonce',

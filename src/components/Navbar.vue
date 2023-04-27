@@ -13,7 +13,7 @@
         <router-link to="/connexion"><el-button type="success" :icon="UserFilled" bg text circle size="large"/></router-link>
       </div>
       <div class="user-navbar-btn" v-if="this.isConnected">
-        <router-link to="/user"><el-button type="success" :icon="UserFilled" bg text circle size="large"/></router-link>
+        <router-link :to="{path: '/user/' + userId}"><el-button type="success" :icon="UserFilled" bg text circle size="large"/></router-link>
         <router-link to="/notifications"><el-button type="success" :icon="BellFilled" bg text circle size="default" class="btn"/></router-link>
         <div @click="logout" style="background-color: white; width: 30px; height: 32px; border-radius: 25px; display: flex;justify-content: center; align-items: center; margin-left: 5px; cursor: pointer"><font-awesome-icon icon="fa-solid fa-right-from-bracket" style="color: #67C23A; margin: 0; width: 14px; height: 14px" class="btn"/></div>
       </div>
@@ -46,7 +46,8 @@ export default {
   data() {
     return {
       isConnected: false,
-      isAdmin: false
+      isAdmin: false,
+      userId: null
     }
   },
   created() {
@@ -56,13 +57,17 @@ export default {
     }
     this.isConnected = !!token
     const decoded = jwt.decode(token)
-    if(decoded !== null && decoded.permission === 10){
-      this.isAdmin = true
+    if(decoded !== null) {
+      this.userId = decoded.id
+      if(decoded.permission === 10){
+        this.isAdmin = true
+      }
     }
   },
   methods: {
     logout() {
       window.sessionStorage.removeItem('token')
+      window.localStorage.removeItem('token')
       this.isConnected = false
       this.isAdmin = false
       ElMessage({
