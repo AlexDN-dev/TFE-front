@@ -10,7 +10,7 @@
         </router-link>
       </div>
       <div class="user-navbar-btn" v-if="!this.isConnected">
-        <el-button type="success" :icon="UserFilled" bg text circle size="large"/>
+        <router-link to="/connexion"><el-button type="success" :icon="UserFilled" bg text circle size="large"/></router-link>
       </div>
       <div class="user-navbar-btn" v-if="this.isConnected">
         <router-link to="/user"><el-button type="success" :icon="UserFilled" bg text circle size="large"/></router-link>
@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      isConnected: true
+      isConnected: false
     }
   }
 }
@@ -100,5 +100,10 @@ export default {
     justify-content: center;
     align-items: center;
     cursor: pointer;
+  }
+  #alerte {
+    display: flex;
+    justify-content: center;
+    margin: 10px 10px 0 10px;
   }
 </style>
