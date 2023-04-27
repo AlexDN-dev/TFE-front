@@ -4,7 +4,7 @@
       <div style="display: flex; align-items: center">
         <h2>ElectroAuto</h2>
         <router-link to="/admin">
-          <div class="admin-btn">
+          <div class="admin-btn" v-if="isAdmin">
             <font-awesome-icon icon="fa-solid fa-toolbox" style="color: #8bc34a;" />
           </div>
         </router-link>
@@ -15,7 +15,7 @@
       <div class="user-navbar-btn" v-if="this.isConnected">
         <router-link to="/user"><el-button type="success" :icon="UserFilled" bg text circle size="large"/></router-link>
         <router-link to="/notifications"><el-button type="success" :icon="BellFilled" bg text circle size="default" class="btn"/></router-link>
-        <div style="background-color: white; width: 30px; height: 32px; border-radius: 25px; display: flex;justify-content: center; align-items: center; margin-left: 5px; cursor: pointer"><font-awesome-icon icon="fa-solid fa-right-from-bracket" style="color: #67C23A; margin: 0; width: 14px; height: 14px" class="btn"/></div>
+        <div @click="logout" style="background-color: white; width: 30px; height: 32px; border-radius: 25px; display: flex;justify-content: center; align-items: center; margin-left: 5px; cursor: pointer"><font-awesome-icon icon="fa-solid fa-right-from-bracket" style="color: #67C23A; margin: 0; width: 14px; height: 14px" class="btn"/></div>
       </div>
     </div>
     <div class="navbar">
@@ -28,15 +28,14 @@
 </template>
 
 <script>
-import {Sort, UserFilled} from "@element-plus/icons-vue";
+import {UserFilled} from "@element-plus/icons-vue";
 import {BellFilled} from "@element-plus/icons-vue";
+import {ElMessage} from "element-plus";
+const jwt = require('jsonwebtoken');
 
 export default {
   name: "Navbar",
   computed: {
-    Sort() {
-      return Sort
-    },
     BellFilled() {
       return BellFilled
     },
@@ -46,7 +45,32 @@ export default {
   },
   data() {
     return {
-      isConnected: false
+      isConnected: false,
+      isAdmin: false
+    }
+  },
+  created() {
+    let token = window.sessionStorage.getItem('token')
+    if(token === null){
+      token = window.localStorage.getItem('token')
+    }
+    this.isConnected = !!token
+    const decoded = jwt.decode(token)
+    if(decoded !== null && decoded.permission === 10){
+      this.isAdmin = true
+    }
+  },
+  methods: {
+    logout() {
+      window.sessionStorage.removeItem('token')
+      this.isConnected = false
+      this.isAdmin = false
+      ElMessage({
+        showClose: true,
+        message: "Déconnexion effectué !",
+        type: "success"
+      })
+      this.$router.push('/')
     }
   }
 }
@@ -100,10 +124,5 @@ export default {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-  }
-  #alerte {
-    display: flex;
-    justify-content: center;
-    margin: 10px 10px 0 10px;
   }
 </style>

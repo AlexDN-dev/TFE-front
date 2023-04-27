@@ -88,8 +88,8 @@ export default {
         postalCode: null,
         phoneNumber: null,
         picture: null,
-        profilLevel: null,
-        permission: null
+        profilLevel: 0,
+        permission: 0
       },
       confirmData: {
         mail: "",
