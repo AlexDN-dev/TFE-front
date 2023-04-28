@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router"
+
 import Accueil from "@/view/Accueil.vue";
 import Recherche from "@/view/Recherche.vue";
 import ListeRecherche from "@/view/ListeRecherche.vue";
@@ -58,7 +59,7 @@ const router =createRouter({
         },
         {
             path: '/userSettings',
-            component: UserSettings
+            component: UserSettings,
         },
         {
             path: '/garageSettings',

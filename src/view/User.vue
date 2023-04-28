@@ -131,10 +131,8 @@ export default {
           axios.post("http://localhost:3000/token", token)
               .then((res) => {
                 if(this.id === res.data.token.id.toString()){
-                  console.log("ici")
                   this.hisAccount = true
                 }else {
-                  console.log("par la !")
                   this.hisAccount = false
                 }
               }).catch((err) => {
