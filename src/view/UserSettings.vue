@@ -28,7 +28,7 @@
     <el-button @click="submitUpload">Valider</el-button>
   </div>
   <el-divider/>
-  <div class="user-informations">
+  <form class="user-informations">
     <div class="button">
       <p>Modifier le mot de passe</p>
       <div>
@@ -43,7 +43,7 @@
       <div>
         <el-input v-model="phoneNumber" :placeholder="userData.phoneNumber"></el-input>
       </div>
-      <el-button>Valider</el-button>
+      <el-button @click="changePhoneNumber" :disabled="this.phoneNumber === ''">Valider</el-button>
     </div>
     <div class="button">
       <p>Informations personelles</p>
@@ -51,10 +51,21 @@
         <el-input v-model="coords.city" :placeholder="userData.city"></el-input>
         <el-input v-model="coords.postalCode" :placeholder="userData.postalCode"></el-input>
       </div>
-      <el-button>Valider</el-button>
+      <el-button @click="changeCoords" :disabled="this.coords.city === '' || this.coords.postalCode === ''">Valider</el-button>
     </div>
-    <el-button type="danger" style="margin: 15px">Supprimer mon compte</el-button>
-  </div>
+    <el-button type="danger" style="margin: 15px" @click="dialogBox = true">Supprimer mon compte</el-button>
+    <el-dialog v-model="dialogBox" title="Attention" width="30%" center>
+    <span>Voulez-vous vraiment supprimer votre compte ?</span>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="deleteAccount">
+          Confirm
+        </el-button>
+        <el-button @click="dialogBox = false">Annuler</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  </form>
   <Footer/>
 </template>
 
@@ -70,6 +81,7 @@ export default {
   components: {Footer, Navbar},
   data() {
     return {
+      dialogBox: false,
       picture: [],
       userData: {
         id: "",
@@ -154,6 +166,77 @@ export default {
               })
             })
       }
+    },
+    changePhoneNumber(){
+      const phoneNumber = {
+        phone: this.phoneNumber,
+        id: this.userData.id
+      }
+      axios.post("http://www.localhost:3000/users/changePhoneNumber", phoneNumber)
+          .then((res) => {
+            ElMessage({
+              showClose: true,
+              message: res.data.message,
+              type: 'success'
+            })
+            this.phoneNumber = ""
+            this.reloadData()
+          }).catch((err) => {
+            ElMessage.error({
+            showClose: true,
+            message: err.response.data.error
+        })
+      })
+    },
+    changeCoords(){
+      this.coords = {...this.coords, id: this.userData.id}
+      axios.post("http://www.localhost:3000/users/changeCoords", this.coords)
+          .then((res) => {
+            ElMessage({
+              showClose: true,
+              message: res.data.message,
+              type: 'success'
+            })
+            this.coords.postalCode = ""
+            this.coords.city = ""
+            this.reloadData()
+          }).catch((err) => {
+            ElMessage.error({
+              showClose: true,
+              message: err.response.data.error
+        })
+      })
+    },
+    deleteAccount(){
+      this.dialogBox = false
+      axios.post("http://www.localhost:3000/users/deleteAccount", this.userData.id)
+          .then((res) => {
+            ElMessage({
+              showClose: true,
+              message: res.data.message,
+              type: 'success'
+            })
+            logout()
+            this.$router.push('/')
+          }).catch((err) => {
+            ElMessage.error({
+              showClose: true,
+              message: err
+            })
+      })
+    },
+    reloadData(){
+      const token = getToken()
+      axios.post("http://localhost:3000/token", token)
+          .then((res) => {
+            this.userData.id = res.data.token.id
+            axios.post('http://localhost:3000/users/data', res.data.token.id)
+                .then((res) => {
+                  this.userData.phoneNumber = res.data.data.phoneNumber
+                  this.userData.city = res.data.data.city
+                  this.userData.postalCode = res.data.data.postalCode
+                })
+          })
     }
   },
   mounted() {
@@ -180,6 +263,9 @@ export default {
 </script>
 
 <style scoped>
+  .el-overlay {
+    max-width: 1000px;
+  }
   h3 {
     text-align: center;
     margin: 20px;

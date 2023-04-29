@@ -93,6 +93,7 @@ import Footer from "@/components/Footer.vue";
 import AnnonceVoitureMini from "@/components/AnnonceVoitureMini.vue";
 import axios from "axios";
 import {ElMessage} from "element-plus";
+import {logout} from "@/router/middleware";
 
 export default {
   name: "User",
@@ -130,19 +131,20 @@ export default {
           }
           axios.post("http://localhost:3000/token", token)
               .then((res) => {
+                if(res.data.message === "token is expired."){
+                  logout()
+                  ElMessage.error({
+                    message: "Votre session est expiré, merci de vous reconnecter.",
+                    showClose: true
+                  })
+                  this.$router.push('/connexion')
+                }
                 if(this.id === res.data.token.id.toString()){
                   this.hisAccount = true
                 }else {
                   this.hisAccount = false
                 }
-              }).catch((err) => {
-                ElMessage.error({
-                  message: err,
-                  showClose: true
-                })
-          })
-        }).catch((err) => {
-          console.log(err)
+              })
         })
   },
   methods: {
