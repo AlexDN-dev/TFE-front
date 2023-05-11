@@ -22,28 +22,28 @@ import RechercheVoiture from "@/components/RechercheVoiture.vue";
 import {Back} from "@element-plus/icons-vue";
 import RechercheConcession from "@/components/RechercheConcession.vue";
 
-export default {
-  name: "Recherche",
-  computed: {
-    Back() {
-      return Back
-    }
-  },
-  components: {RechercheConcession, RechercheVoiture, Footer, Navbar},
-  data(){
-    return {
-      searchGarage: false
-    }
-  },
-  methods: {
-    swapMode(){
-      const btn = document.getElementById("selectModeButton");
-      btn.classList.toggle("changeMode")
-      this.searchGarage = !this.searchGarage
+  export default {
+    name: "Recherche",
+    computed: {
+      Back() {
+        return Back
+      }
+    },
+    components: {RechercheConcession, RechercheVoiture, Footer, Navbar},
+    data(){
+      return {
+        searchGarage: false
+      }
+    },
+    methods: {
+      swapMode(){
+        const btn = document.getElementById("selectModeButton");
+        btn.classList.toggle("changeMode")
+        this.searchGarage = !this.searchGarage
+      }
     }
   }
-}
-</script>
+  </script>
 
 <style scoped>
   .title {

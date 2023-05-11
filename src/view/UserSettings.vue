@@ -130,7 +130,7 @@ export default {
       } else {
         ElMessage.error({
           showClose: true,
-          message: 'Votre photo de profil à été chargé avec succès !'
+          message: 'Une erreur est survenue durant l\'envoie de la photo.'
         })
       }
     },
@@ -256,6 +256,10 @@ export default {
                 this.userData.phoneNumber = res.data.data.phoneNumber
                 this.userData.city = res.data.data.city
                 this.userData.postalCode = res.data.data.postalCode
+              })
+              .catch(() =>{
+                logout()
+                this.$router.push('/connexion')
               })
         })
   }
