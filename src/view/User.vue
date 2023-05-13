@@ -92,7 +92,7 @@ import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
 import AnnonceVoitureMini from "@/components/AnnonceVoitureMini.vue";
 import axios from "axios";
-import {logout} from "@/router/middleware";
+import {hasToken, getToken} from "@/router/middleware";
 
 export default {
   name: "User",
@@ -124,22 +124,15 @@ export default {
           if(res.data.data.age !== null){
             this.userData.age = this.calculateAge(res.data.data.age)
           }
-          let token = window.sessionStorage.getItem('token')
-          if(token === null){
-            token = window.localStorage.getItem('token')
+          if(hasToken()){
+            const token = getToken()
+            axios.post("http://localhost:3000/token", token)
+                .then((res) => {
+                  this.hisAccount = this.id === res.data.token.id.toString();
+                })
+                .catch(() =>{
+                })
           }
-          axios.post("http://localhost:3000/token", token)
-              .then((res) => {
-                if(this.id === res.data.token.id.toString()){
-                  this.hisAccount = true
-                }else {
-                  this.hisAccount = false
-                }
-              })
-              .catch(() =>{
-                logout()
-                this.$router.push('/connexion')
-              })
         })
   },
   methods: {

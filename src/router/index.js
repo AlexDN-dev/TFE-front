@@ -24,6 +24,9 @@ import AdminSupportMessage from "@/view/admin/AdminSupportMessage.vue";
 import AdminNotification from "@/view/admin/AdminNotification.vue";
 import AdminGarage from "@/view/admin/AdminGarage.vue";
 import AdminParameters from "@/view/admin/AdminParameters.vue";
+import {getToken, hasToken} from "@/router/middleware";
+import {ElMessage} from "element-plus";
+import axios from "axios";
 
 const router =createRouter({
     history: createWebHistory(),
@@ -41,8 +44,9 @@ const router =createRouter({
             component: ListeRecherche
         },
         {
-            path: '/annonce/voiture',
-            component: AnnonceVoiture
+            path: '/annonce/voiture/:id',
+            component: AnnonceVoiture,
+            props: true
         },
         {
             path: '/annonce/garage',
@@ -55,23 +59,28 @@ const router =createRouter({
         },
         {
             path: '/createAnnonce',
-            component: CreateAnnonce
+            component: CreateAnnonce,
+            beforeEnter: checkToken
         },
         {
             path: '/userSettings',
             component: UserSettings,
+            beforeEnter: checkToken
         },
         {
             path: '/garageSettings',
-            component: GarageSettings
+            component: GarageSettings,
+            beforeEnter: checkToken
         },
         {
             path: '/notifications',
-            component: NotificationList
+            component: NotificationList,
+            beforeEnter: checkToken
         },
         {
             path: '/notifications/id',
-            component: Notification
+            component: Notification,
+            beforeEnter: checkToken
         },
         {
             path: '/support',
@@ -95,37 +104,65 @@ const router =createRouter({
         },
         {
             path: '/admin',
-            component: AdminPanel
+            component: AdminPanel,
+            beforeEnter: checkToken
         },
         {
             path: '/admin/annonce',
-            component: AdminAnnonce
+            component: AdminAnnonce,
+            beforeEnter: checkToken
         },
         {
             path: "/admin/user",
-            component: AdminUser
+            component: AdminUser,
+            beforeEnter: checkToken
         },
         {
             path: "/admin/support",
-            component: AdminSupportList
+            component: AdminSupportList,
+            beforeEnter: checkToken
         },
         {
             path: "/admin/support/id",
-            component: AdminSupportMessage
+            component: AdminSupportMessage,
+            beforeEnter: checkToken
         },
         {
             path: "/admin/notification",
-            component: AdminNotification
+            component: AdminNotification,
+            beforeEnter: checkToken
         },
         {
             path: "/admin/garage",
-            component: AdminGarage
+            component: AdminGarage,
+            beforeEnter: checkToken
         },
         {
             path: "/admin/parametres",
-            component: AdminParameters
+            component: AdminParameters,
+            beforeEnter: checkToken
         }
     ]
 })
+
+function checkToken(to, from, next) {
+    if (hasToken()) {
+        next();
+    } else {
+        const token = getToken()
+        axios.post("http://localhost:3000/token", token)
+            .then(() => {
+                next()
+            })
+            .catch((err) => {
+                console.log(err)
+                ElMessage.error({
+                    message: "Vous n'êtes pas connecté ou votre session à expiré.",
+                    showClose: true
+                })
+            })
+        next('/connexion');
+    }
+}
 
 export default router

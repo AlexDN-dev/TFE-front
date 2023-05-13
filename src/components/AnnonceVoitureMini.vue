@@ -1,37 +1,37 @@
 <template>
   <div class="annonce">
-    <img src="../assets/img/voiture-exemple.jpg">
+    <img :src="'http://localhost:3000/getImages/' + id + '/0.jpg'">
     <div class="informations">
       <div class="main-info">
-        <p class="title">Titre de l'annonce</p>
-        <p class="prix">12 999 €</p>
+        <p class="title">{{ title }}</p>
+        <p class="prix">{{ prix }} €</p>
       </div>
       <div style="margin-bottom: 20px">
-        <p class="description">Marque + Modèle</p>
+        <p class="description">{{ marque }} {{ modele }}</p>
         <div class="info">
           <div class="informations-container">
             <el-tooltip content="Kilométrage" placement="bottom" effect="dark">
             <font-awesome-icon icon="fa-solid fa-road" size="lg" style="color: #000000;" />
             </el-tooltip>
-            <p>126.000 km</p>
+            <p>{{ km }} km</p>
           </div>
           <div class="informations-container">
             <el-tooltip content="Année de production" placement="bottom" effect="dark">
             <font-awesome-icon icon="fa-solid fa-calendar" size="lg" style="color: #000000;" />
             </el-tooltip>
-            <p>06/2011</p>
+            <p>{{ annee }}</p>
           </div>
           <div class="informations-container">
             <el-tooltip content="Puissance" placement="bottom" effect="dark">
             <font-awesome-icon icon="fa-solid fa-gauge-high" size="lg" style="color: #000000;" />
             </el-tooltip>
-            <p>400 kW (544CH)</p>
+            <p>{{ puissance }} kW {{ parseInt(puissance * 1.36).toFixed(0) }} (cH)</p>
           </div>
           <div class="informations-container">
             <el-tooltip content="Autonomie" placement="bottom" effect="dark">
               <font-awesome-icon icon="fa-solid fa-car-battery" size="lg" style="color: #000000;" />
             </el-tooltip>
-            <p>300Km</p>
+            <p>{{ autonomie }} km</p>
           </div>
         </div>
       </div>
@@ -45,24 +45,30 @@
 
 <script>
 export default {
-  name: "AnnonceVoitureMini"
+  name: "AnnonceVoitureMini",
+  props: ['id','title', 'marque', 'modele', 'km', 'annee', 'puissance', 'autonomie', 'prix'],
+  data() {
+    return {
+    }
+  }
 }
 </script>
 
 <style scoped>
   .annonce {
+    min-width: 820px;
     width: 80%;
     display: flex;
+    justify-content: space-evenly;
     background-color: rgb(245, 245, 245);
     margin-bottom: 10px;
     padding: 10px;
   }
   .annonce img {
-    width: 30%;
+    width: 270px;
+    height: 170px;
   }
   .informations {
-    width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-around;

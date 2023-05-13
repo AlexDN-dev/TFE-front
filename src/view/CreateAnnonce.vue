@@ -41,7 +41,13 @@
     </div>
     <div>
       <p class="title">Le type*</p>
-      <el-input v-model="carInformation.type"></el-input>
+      <el-select class="input" v-model="carInformation.type" placeholder=" ">
+        <el-option label="Citadine" value="Citadine"/>
+        <el-option label="SUV" value="SUV"/>
+        <el-option label="Berline" value="Berline"/>
+        <el-option label="Coupé" value="Coupé"/>
+        <el-option label="Utilitaire" value="Utilitaire"/>
+      </el-select>
     </div>
     <div>
       <p class="title">Le kilométrage*</p>
@@ -50,6 +56,18 @@
     <div>
       <p class="title">Le prix*</p>
       <el-input type="number" class="input" v-model="carInformation.price"/>
+    </div>
+    <div>
+      <p class="title">Puissance*</p>
+      <el-input type="number" class="input" v-model="carInformation.puissance" placeholder="en kW"/>
+    </div>
+    <div>
+      <p class="title">Autonomie*</p>
+      <el-input type="number" class="input" v-model="carInformation.autonomie"/>
+    </div>
+    <div>
+      <p class="title">L'année de production*</p>
+      <el-input class="input" v-model="carInformation.annee"/>
     </div>
     <div>
       <p class="title">Le nombre de propriétaire*</p>
@@ -116,7 +134,10 @@ export default {
         desc: "",
         equipment: "",
         color: "",
-        numDoors: ""
+        numDoors: "",
+        annee: "",
+        puissance: "",
+        autonomie: ""
       },
       options: [
         {
@@ -196,17 +217,21 @@ export default {
         formData.append('equipment', this.carInformation.equipment);
         formData.append('color', this.carInformation.color);
         formData.append('numDoors', this.carInformation.numDoors);
+        formData.append('annee', this.carInformation.annee)
+        formData.append('puissance', this.carInformation.puissance)
+        formData.append('autonomie', this.carInformation.autonomie)
         formData.append('userId', this.userId)
-
+        console.log(this.carInformation.puissance)
+        console.log(this.carInformation.autonomie)
         axios.post('http://localhost:3000/annonce/create', formData)
             .then((res) => {
-              this.fileList = []
+              //this.fileList = []
               ElMessage({
                 showClose: true,
                 message: res.data.message,
                 type: "success"
               })
-              this.$router.push('/')
+              //this.$router.push('/')
             })
             .catch((error) => {
               ElMessage.error({
