@@ -37,43 +37,29 @@
     </div>
     <h2>Les annonces de {{userData.firstname}}</h2>
     <div class="annonce-container">
-      <div class="annonce">
-        <AnnonceVoitureMini/>
+      <div class="annonce" v-for="annonce in annonceList" :key="annonce.id">
+        <router-link :to="`/annonce/voiture/${annonce.id}`" class="routing">
+          <AnnonceVoitureMini
+              :id="annonce.id"
+              :annonce="annonce"
+              :title="annonce.title"
+              :marque="annonce.marque"
+              :modele="annonce.model"
+              :prix="annonce.price"
+              :km="annonce.km"
+              :annee="annonce.annee"
+              :puissance="annonce.puissance"
+              :autonomie="annonce.autonomie"
+              :city="annonce.city"
+          />
+        </router-link>
         <div v-if="hisAccount"  class="annonce-btn">
           <el-tooltip content="Éditer" placement="right">
-            <div class="btn edit">
-              <font-awesome-icon icon="fa-solid fa-pen" style="color: #8a8a8a;" />
-            </div>
-          </el-tooltip>
-          <el-tooltip content="Supprimer" placement="right">
-            <div class="btn delete-account">
-              <font-awesome-icon icon="fa-solid fa-trash" style="color: #ff2727;" />
-            </div>
-          </el-tooltip>
-        </div>
-      </div>
-      <div class="annonce">
-        <AnnonceVoitureMini/>
-        <div v-if="hisAccount"  class="annonce-btn">
-          <el-tooltip content="Éditer" placement="right">
-            <div class="btn edit">
-              <font-awesome-icon icon="fa-solid fa-pen" style="color: #8a8a8a;" />
-            </div>
-          </el-tooltip>
-          <el-tooltip content="Supprimer" placement="right">
-            <div class="btn delete-account">
-              <font-awesome-icon icon="fa-solid fa-trash" style="color: #ff2727;" />
-            </div>
-          </el-tooltip>
-        </div>
-      </div>
-      <div class="annonce">
-        <AnnonceVoitureMini/>
-        <div v-if="hisAccount"  class="annonce-btn">
-          <el-tooltip content="Éditer" placement="right">
-            <div class="btn edit">
-              <font-awesome-icon icon="fa-solid fa-pen" style="color: #8a8a8a;" />
-            </div>
+            <router-link :to="`/user/${userData.id}/modifyAnnonce/${annonce.id}`">
+              <div class="btn edit">
+                <font-awesome-icon icon="fa-solid fa-pen" style="color: #8a8a8a;" />
+              </div>
+            </router-link>
           </el-tooltip>
           <el-tooltip content="Supprimer" placement="right">
             <div class="btn delete-account">
@@ -90,9 +76,9 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
-import AnnonceVoitureMini from "@/components/AnnonceVoitureMini.vue";
 import axios from "axios";
 import {hasToken, getToken} from "@/router/middleware";
+import AnnonceVoitureMini from "@/components/AnnonceVoitureMini.vue";
 
 export default {
   name: "User",
@@ -112,11 +98,12 @@ export default {
         age: null,
         profilLevel: null
       },
-      hisAccount: false
+      hisAccount: false,
+      annonceList: []
     }
   },
   mounted() {
-    axios.post('http://localhost:3000/users/data', this.userData.id)
+    axios.post('http://localhost:3000/users/data', {userId: this.userData.id})
         .then((res) => {
           this.userData.firstname = res.data.data.firstName
           this.userData.lastname = res.data.data.lastName
@@ -133,6 +120,13 @@ export default {
                 .catch(() =>{
                 })
           }
+          axios.post('http://localhost:3000/annonce/getAnnonce', {userId: this.userData.id})
+              .then((res) => {
+                this.annonceList = res.data
+              })
+              .catch((err) => {
+                console.log(err)
+          })
         })
   },
   methods: {
@@ -238,6 +232,10 @@ export default {
   }
   .annonce-btn {
     margin-left: 5px;
+  }
+  .routing {
+    color: black;
+    text-decoration: none;
   }
   @media screen and (max-width: 500px) {
     .avatar {

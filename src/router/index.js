@@ -24,7 +24,7 @@ import AdminSupportMessage from "@/view/admin/AdminSupportMessage.vue";
 import AdminNotification from "@/view/admin/AdminNotification.vue";
 import AdminGarage from "@/view/admin/AdminGarage.vue";
 import AdminParameters from "@/view/admin/AdminParameters.vue";
-import {getToken, hasToken} from "@/router/middleware";
+import {getToken, logout} from "@/router/middleware";
 import {ElMessage} from "element-plus";
 import axios from "axios";
 
@@ -65,6 +65,11 @@ const router =createRouter({
         {
             path: '/userSettings',
             component: UserSettings,
+            beforeEnter: checkToken
+        },
+        {
+            path: '/user/:idUser/modifyAnnonce/:id',
+            component: CreateAnnonce,
             beforeEnter: checkToken
         },
         {
@@ -146,23 +151,20 @@ const router =createRouter({
 })
 
 function checkToken(to, from, next) {
-    if (hasToken()) {
-        next();
-    } else {
-        const token = getToken()
-        axios.post("http://localhost:3000/token", token)
-            .then(() => {
-                next()
+    const token = getToken()
+    axios.post("http://localhost:3000/token", token)
+        .then(() => {
+            next()
+        })
+        .catch((err) => {
+            console.log(err)
+            ElMessage.error({
+                message: "Vous n'êtes pas connecté ou votre session à expiré.",
+                showClose: true
             })
-            .catch((err) => {
-                console.log(err)
-                ElMessage.error({
-                    message: "Vous n'êtes pas connecté ou votre session à expiré.",
-                    showClose: true
-                })
-            })
-        next('/connexion');
-    }
+            logout()
+            next('/connexion');
+        })
 }
 
 export default router

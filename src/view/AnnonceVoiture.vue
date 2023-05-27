@@ -16,14 +16,14 @@
         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" class="avatar"/>
       </div>
       <div class="seller-informations">
-        <p class="name">De Nève Alexandre</p>
+        <p class="name">{{ user.firstName }} {{ user.lastName }}</p>
         <div style="display: flex; align-items: center; margin: 0">
           <font-awesome-icon icon="fa-solid fa-location-dot" size="lg" style="color: #000000;" />
-          <p>Charleroi, Hainaut</p>
+          <p>{{ user.city }}</p>
         </div>
-        <p>tel: 0499 / 35 75 48</p>
-        <el-button class="btn" type="success" text bg>Contacter le vendeur</el-button>
-        <el-button class="btn" type="success" text bg>Voir ses annonces</el-button>
+        <p>tel: <span style="letter-spacing: 1px">{{ user.phoneNumber }}</span></p>
+        <el-button class="btn" type="success" @click="copyAddress" text bg>Contacter le vendeur</el-button>
+        <router-link :to="/user/ + user.id"><el-button class="btn" type="success" text bg>Voir ses annonces</el-button></router-link>
       </div>
     </div>
   </div>
@@ -32,19 +32,19 @@
     <div class="info">
       <div class="informations-container">
         <p style="font-weight: bold">Kilométrage</p>
-        <p>126.000 km</p>
+        <p>{{ data.km }} km</p>
       </div>
       <div class="informations-container">
         <p style="font-weight: bold">Année de production</p>
-        <p>06/2011</p>
+        <p>{{ data.annee }}</p>
       </div>
       <div class="informations-container">
         <p style="font-weight: bold">Puissance</p>
-        <p>400 kW (544CH)</p>
+        <p>{{ data.puissance }} kW {{ parseInt(data.puissance * 1.36).toFixed(0) }} (CH)</p>
       </div>
       <div class="informations-container">
         <p style="font-weight: bold">Autonomie</p>
-        <p>300Km</p>
+        <p>{{ data.autonomie }} Km</p>
       </div>
     </div>
   </div>
@@ -54,24 +54,22 @@
     <div class="secondary-informations-container">
       <div class="secondary-informations">
         <div>
-          <p>Nombre de propriétaire(s) précédent(s) : </p><span>2</span>
+          <p>Nombre de propriétaire(s) précédent(s) : </p><span>{{ data.numOwner }}</span>
         </div>
         <div>
-          <p>Nombre de portes :</p><span>5</span>
+          <p>Nombre de portes :</p><span>{{ data.numDoors }}</span>
         </div>
         <div>
-          <p>Type de véhicule : </p><span>Berline</span>
+          <p>Type de véhicule : </p><span>{{ data.type }}</span>
         </div>
         <p>Liste d'équipement :</p>
         <ul>
-          <li>Vitre électrique</li>
-          <li>Start and stop</li>
-          <li>Bluetooth</li>
+          <li v-for="item in getEquipmentList()" :key="item">{{ item }}</li>
         </ul>
       </div>
       <div class="description-container">
         <p>Description du vendeur</p>
-        <p>Voiture en parfait état, je souhaite la vendre car j'aimerais passer à autre chose.</p>
+        <p>{{ data.desc }}</p>
       </div>
     </div>
   </div>
@@ -81,19 +79,69 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 
 export default {
   name: "AnnonceVoiture",
   components: {Footer, Navbar},
+  props: {
+    id: {
+      type: Number,
+      required: true
+    }
+  },
   data() {
     return {
-      items: [
-        {src: "https://image.noelshack.com/fichiers/2023/14/5/1680851664-pexels-oleksandr-pidvalnyi-376361.jpg"},
-        {src: "https://image.noelshack.com/fichiers/2023/14/5/1680851664-pexels-ryan-west-1719648.jpg"},
-        {src: "https://image.noelshack.com/fichiers/2023/14/5/1680851664-pexels-abdulwahab-alawadhi-3422964.jpg"},
-        {src: "https://image.noelshack.com/fichiers/2023/14/5/1680851920-pexels-cesar-perez-733745.jpg"}
-      ]
+      idAnnonce: this.id,
+      items: [],
+      data: {},
+      equipment: '',
+      idOwner: '',
+      user: {}
     }
+  },
+  methods: {
+    getEquipmentList() {
+      return this.equipment.split(",");
+    },
+    copyAddress(){
+      navigator.clipboard.writeText(this.user.mail)
+          .then(() => {
+            ElMessage({
+              showClose: true,
+              message: "Adresse mail du vendeur copié !",
+              type: "success"
+            })
+          })
+          .catch((erreur) => {
+            console.error("Erreur lors de la copie du texte :", erreur);
+          });
+    }
+  },
+  async mounted() {
+    await axios.post("http://localhost:3000/annonce", {idAnnonce: this.idAnnonce})
+        .then((res) => {
+          const count = res.data.count
+          this.data = res.data.response.rows[0]
+          this.equipment = this.data.equipment
+          this.idOwner = this.data.id_owner
+          for (let i = 0; i < count; i++) {
+            this.items.push({
+              src: "http://localhost:3000/getImages/" + this.idAnnonce + "/" + i + ".jpg"
+            })
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    axios.post("http://localhost:3000/users/data", {userId: this.idOwner})
+        .then((res) => {
+          this.user = res.data.data
+        })
+        .catch((err) => {
+          console.log(err)
+        })
   }
 }
 </script>

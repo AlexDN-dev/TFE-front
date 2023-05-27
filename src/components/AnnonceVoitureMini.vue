@@ -6,7 +6,7 @@
         <p class="title">{{ title }}</p>
         <p class="prix">{{ prix }} €</p>
       </div>
-      <div style="margin-bottom: 20px">
+      <div>
         <p class="description">{{ marque }} {{ modele }}</p>
         <div class="info">
           <div class="informations-container">
@@ -25,7 +25,7 @@
             <el-tooltip content="Puissance" placement="bottom" effect="dark">
             <font-awesome-icon icon="fa-solid fa-gauge-high" size="lg" style="color: #000000;" />
             </el-tooltip>
-            <p>{{ puissance }} kW {{ parseInt(puissance * 1.36).toFixed(0) }} (cH)</p>
+            <p>{{ puissance }} kW {{ parseInt(puissance * 1.36).toFixed(0) }} (CH)</p>
           </div>
           <div class="informations-container">
             <el-tooltip content="Autonomie" placement="bottom" effect="dark">
@@ -34,10 +34,6 @@
             <p>{{ autonomie }} km</p>
           </div>
         </div>
-      </div>
-      <div class="location">
-        <font-awesome-icon icon="fa-solid fa-location-dot" size="lg" style="color: #000000;" />
-        <p>Beaumont, Hainaut</p>
       </div>
     </div>
   </div>

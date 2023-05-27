@@ -1,8 +1,8 @@
 <template>
   <Navbar/>
-  <h2>Voici un formulaire pour pouvoir ajouter votre annonce à notre site</h2>
-  <h3>Chaque annonce est sujette à une inspection par un administrateur de la plateforme avant la mise en ligne. Vous recevrez une notification quand l'annonce aura été accepté ou non.</h3>
-  <el-divider/>
+  <h2 v-if="mode === 'create'">Voici un formulaire pour pouvoir ajouter votre annonce à notre site</h2>
+  <h3 v-if="mode === 'create'">Chaque annonce est sujette à une inspection par un administrateur de la plateforme avant la mise en ligne. Vous recevrez une notification quand l'annonce aura été accepté ou non.</h3>
+  <el-divider v-if="mode === 'create'"/>
   <p class="title">Les photos de votre annonce <span style="font-size: 0.8rem">(minimum 1 photo)</span></p>
   <el-upload
       v-model:file-list="fileList"
@@ -16,12 +16,16 @@
       :list-type="'picture-card'"
       :default-file-list="fileList"
       :limit="15"
+      @change="handleFileChange"
   >
-    <el-icon class="avatar-uploader-icon"><Plus /></el-icon>
+    <el-icon class="avatar-uploader-icon">
+      <Plus />
+    </el-icon>
     <template v-slot:tip>
       <div class="el-upload__tip">Seulement des fichiers au format jpg/png avec une taille maximale de 2Mo</div>
     </template>
   </el-upload>
+
   <div class="annonce-title">
     <p class="title">Titre de l'annonce*</p>
     <el-input v-model="carInformation.titre" style="width: 300px"></el-input>
@@ -103,7 +107,8 @@
     </div>
   </div>
   <div style="width: 100%; display: flex; justify-content: center">
-    <el-button :disabled="this.carInformation.titre === '' || this.carInformation.marque === '' || this.carInformation.modele === '' || this.carInformation.type === '' || this.carInformation.km === '' || this.carInformation.price === '' || this.carInformation.numOwner === '' || this.carInformation.state === ''" class="btn" type="success" @click="uploadImages">Envoyer</el-button>
+    <el-button :disabled="this.carInformation.titre === '' || this.carInformation.marque === '' || this.carInformation.modele === '' || this.carInformation.type === '' || this.carInformation.km === '' || this.carInformation.price === '' || this.carInformation.numOwner === '' || this.carInformation.state === ''" class="btn" type="success" @click="uploadImages('http://localhost:3000/annonce/create')" v-if="mode === 'create'">Envoyer</el-button>
+    <el-button :disabled="this.carInformation.titre === '' || this.carInformation.marque === '' || this.carInformation.modele === '' || this.carInformation.type === '' || this.carInformation.km === '' || this.carInformation.price === '' || this.carInformation.numOwner === '' || this.carInformation.state === ''" class="btn" type="success" @click="uploadImages('http://localhost:3000/annonce/modify')">Modifier</el-button>
   </div>
   <Footer/>
 </template>
@@ -121,6 +126,7 @@ export default {
   components: {Plus, Footer, Navbar},
   data() {
     return {
+      mode: "modify",
       fileList: [],
       carInformation: {
         titre: "",
@@ -163,19 +169,25 @@ export default {
       ],
       listMarque: [],
       modelOptions: [],
-      userId: null
+      userId: null,
+      carData : {},
+      activeWatcher: false,
+      annonceId: null,
+      dialog: {
+
+      }
     };
   },
   watch: {
     'carInformation.marque': {
       handler(newMarque) {
-        if (newMarque) {
-          this.carInformation.modele = ""
-          this.fetchModelOptions(newMarque);
-        } else {
-          this.modelOptions = []; // Réinitialiser les options de modèle si la marque est vide
-          this.carInformation.modele = ""
-        }
+          if (newMarque) {
+            this.fetchModelOptions(newMarque);
+          } else {
+            this.modelOptions = []; // Réinitialiser les options de modèle si la marque est vide
+            this.carInformation.modele = ""
+          }
+        this.activeWatcher = true
       },
     },
   },
@@ -199,8 +211,38 @@ export default {
       reader.readAsDataURL(file);
       return false; // Empêche l'envoi automatique du fichier
     },
-    uploadImages() {
-      if(this.fileList !== 0){
+    fetchImagesFromServer() {
+      axios.get('http://localhost:3000/annonce/getImages', { // Ajoutez une parenthèse fermante après l'URL
+        params: {
+          id: this.annonceId
+        }
+      })
+          .then(response => {
+            // Récupérer les données de réponse contenant les images du serveur
+            const imagesFromServer = response.data;
+
+            // Ajouter chaque image à la liste fileList
+            imagesFromServer.forEach(image => {
+              this.fileList.push({
+                name: image.fileName,
+                url: image.imageUrl,
+                status: 'ready',
+              });
+            });
+          })
+          .catch(error => {
+            console.error('Erreur lors de la récupération des images du serveur', error);
+          });
+    },
+    handleFileChange(file, fileList) {
+      // File contient les détails du fichier ajouté
+      console.log('Fichier ajouté :', file);
+
+      // FileList contient tous les fichiers actuels de la liste
+      console.log('Liste de fichiers actuelle :', fileList);
+    },
+    uploadImages(url) {
+      if(this.fileList.length !== 0){
         const formData = new FormData();
         this.fileList.forEach((file) => {
           formData.append('images', file.raw);
@@ -221,17 +263,16 @@ export default {
         formData.append('puissance', this.carInformation.puissance)
         formData.append('autonomie', this.carInformation.autonomie)
         formData.append('userId', this.userId)
-        console.log(this.carInformation.puissance)
-        console.log(this.carInformation.autonomie)
-        axios.post('http://localhost:3000/annonce/create', formData)
+        formData.append('annonceId', this.annonceId)
+        axios.post(url, formData)
             .then((res) => {
-              //this.fileList = []
+              this.fileList = []
               ElMessage({
                 showClose: true,
                 message: res.data.message,
                 type: "success"
               })
-              //this.$router.push('/')
+              this.$router.push('/')
             })
             .catch((error) => {
               ElMessage.error({
@@ -247,18 +288,20 @@ export default {
       }
     },
     fetchModelOptions(marque) {
-      axios
-          .get(`http://localhost:3000/options/getModele?marque=${marque}`)
-          .then((response) => {
-            this.modelOptions = response.data;
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+      if(this.activeWatcher === true){
+        this.carInformation.modele = ""
+        axios.get(`http://localhost:3000/options/getModele?marque=${marque}`)
+            .then((response) => {
+              this.modelOptions = response.data;
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+      }
     },
   },
-  mounted() {
-    if(!hasToken()){
+  async mounted() {
+    if (!hasToken()) {
       this.$router.push('/connexion')
       ElMessage.error({
         message: "Vous n'êtes pas connecté ou votre session à expiré.",
@@ -274,6 +317,45 @@ export default {
         .then((res) => {
           this.listMarque = res.data
         })
+    const path = this.$route.path;
+    if (path.includes('modifyAnnonce')) {
+      this.mode = "modify"
+      const param = {
+        idAnnonce: this.$route.params.id,
+        idUser: this.$route.params.idUser
+      }
+      axios.post('http://localhost:3000/users/checkAnnonce', param)
+          .catch(() => {
+            ElMessage.error({
+              message: "Vous ne pouvez pas modifier cette annonce !",
+              showClose: true
+            })
+            this.$router.push("/")
+          })
+      this.annonceId = this.$route.params.id
+      await axios.post("http://localhost:3000/annonce", {idAnnonce: this.$route.params.id})
+          .then(async (res) => {
+            this.carData = res.data.response.rows[0]
+            this.carInformation.titre = this.carData.title
+            this.carInformation.marque = this.carData.marque
+            this.carInformation.type = this.carData.type
+            this.carInformation.km = this.carData.km
+            this.carInformation.price = this.carData.price
+            this.carInformation.puissance = this.carData.puissance
+            this.carInformation.autonomie = this.carData.autonomie
+            this.carInformation.annee = this.carData.annee
+            this.carInformation.numOwner = this.carData.numOwner
+            this.carInformation.state = this.carData.state
+            this.carInformation.desc = this.carData.desc
+            this.carInformation.equipment = this.carData.equipment
+            this.carInformation.color = this.carData.color
+            this.carInformation.numDoors = this.carData.numDoors
+            this.carInformation.modele = this.carData.model
+            this.fetchImagesFromServer();
+          })
+    } else {
+      this.mode = "create"
+    }
   }
 }
 </script>
