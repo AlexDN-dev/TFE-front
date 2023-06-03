@@ -13,7 +13,7 @@
         <a href="#"><font-awesome-icon icon="fa-solid fa-triangle-exclamation" size="lg" style="color: #ff0000;" /></a>
       </div>
       <div class="avatar-container">
-        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" class="avatar"/>
+        <el-avatar :src="avatar" class="avatar"/>
       </div>
       <div class="seller-informations">
         <p class="name">{{ user.firstName }} {{ user.lastName }}</p>
@@ -98,7 +98,8 @@ export default {
       data: {},
       equipment: '',
       idOwner: '',
-      user: {}
+      user: {},
+      avatar: null
     }
   },
   methods: {
@@ -138,6 +139,17 @@ export default {
     axios.post("http://localhost:3000/users/data", {userId: this.idOwner})
         .then((res) => {
           this.user = res.data.data
+          axios.get('http://localhost:3000/users/getPicture', {
+            params: {
+              userId: this.user.id
+            }
+          })
+              .then((res) => {
+                this.avatar = res.data.message
+              })
+              .catch((err) => {
+                console.log(err)
+              })
         })
         .catch((err) => {
           console.log(err)

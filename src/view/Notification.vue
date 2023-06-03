@@ -2,16 +2,25 @@
   <Navbar/>
   <div class="Notification">
     <div class="header">
-      <p class="title">Titre de la notification</p>
-      <p>Envoyé par <span style="font-weight: bold">Administrateur</span></p>
-      <p>le <span>13/04/2023</span></p>
-      <el-button class="delete-btn" type="danger">Supprimer</el-button>
+      <p class="title">{{ notification.title }}</p>
+      <p>Envoyé par <span style="font-weight: bold">{{ notification.sender }}</span></p>
+      <p>le <span>{{ formattedDate }}</span></p>
+      <el-button class="delete-btn" type="danger" @click="dialogBox = true">Supprimer</el-button>
+      <el-dialog v-model="dialogBox" title="Attention" width="30%" center>
+        <span>Voulez-vous supprimer cette notification ?</span>
+        <template #footer>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="deleteNotification">
+          Oui
+        </el-button>
+        <el-button @click="dialogBox = false">Non</el-button>
+      </span>
+        </template>
+      </el-dialog>
     </div>
     <div class="header content">
       <h3>Contenu de la notification</h3>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas placerat turpis non leo ultrices, et sagittis mauris posuere. Aliquam gravida euismod ex, nec auctor elit. Curabitur sagittis sagittis massa eu bibendum. Morbi non scelerisque nisl, ac egestas velit. Nam non molestie justo. Quisque semper elit finibus, fringilla velit id, tempor libero. Quisque ut pulvinar lectus. Nulla at egestas urna, eget tristique leo. Suspendisse consectetur nulla sed nisi dictum euismod. Curabitur egestas purus metus, quis dictum augue aliquet ac.
-
-        Pellentesque ac ligula sit amet elit porta fermentum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus dolor orci, laoreet id dui ut, sodales luctus justo. Phasellus aliquam neque eget lacus consectetur consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas porttitor euismod vulputate. Vestibulum ac bibendum odio, a tempor ante. Nullam non dui magna. Nam scelerisque interdum erat, non facilisis odio tincidunt quis. Sed ultricies consectetur orci vel fermentum. Fusce nec viverra neque, nec interdum lorem.</p>
+      <p>{{ notification.message }}</p>
     </div>
   </div>
   <Footer class="footer"/>
@@ -20,10 +29,60 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
+import axios from "axios";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc'; // Importez le plugin utc de day.js
+import timezone from 'dayjs/plugin/timezone'; // Importez le plugin timezone de day.js
+import 'dayjs/locale/fr';
+import {ElMessage} from "element-plus"; // Importez la localisation française de day.js si nécessaire
+
+dayjs.extend(utc); // Étendez day.js avec le plugin utc
+dayjs.extend(timezone); // Étendez day.js avec le plugin timezone
 
 export default {
   name: "Notification",
-  components: {Footer, Navbar}
+  components: {Footer, Navbar},
+  data(){
+    return {
+      notification: {},
+      dialogBox: false
+    }
+  },
+  methods: {
+    deleteNotification(){
+      axios.post('http://localhost:3000/notifications/delete', {notificationId: this.notification.id})
+        .then((res) => {
+          ElMessage({
+            showClose: true,
+            type: "success",
+            message: res.data.message
+          })
+          this.$router.push('/notifications')
+        })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
+  },
+  mounted() {
+    const id = this.$route.params.id;
+    axios.get('http://localhost:3000/notifications/getNotification', {
+      params: {
+        id: id
+      }
+    })
+        .then((res) => {
+          this.notification = res.data.response.rows[0]
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+  },
+  computed: {
+    formattedDate() {
+      return dayjs.utc(this.notification.date).format('DD-MM-YYYY HH:mm');
+    },
+  }
 }
 </script>
 

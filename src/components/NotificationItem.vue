@@ -1,18 +1,21 @@
 <template>
   <div class="notification">
-    <p class="title">Titre de la notification</p>
+    <p class="title">{{ titre }}</p>
     <div class="sender-container">
       <font-awesome-icon icon="fa-solid fa-user" size="lg" style="color: #000000;" />
-      <p class="sender">Administrateur</p>
+      <p class="sender">{{ sender }}</p>
     </div>
-    <p class="content">{{truncateText("Voici le début de la notifications", 68)}}</p>
+    <p class="content">{{ texte }}</p>
+    <el-tooltip content="Non lu" v-if="readed === 0">
+      <div class="isReaded"/>
+    </el-tooltip>
   </div>
-
 </template>
 
 <script>
 export default {
   name: "NotificationItem",
+  props: ['titre', 'sender', 'texte', "readed"],
   methods: {
     truncateText(text, maxLength) {
       if (text.length > maxLength) {
@@ -49,5 +52,15 @@ export default {
   .content {
     margin: 10px 0 10px 5px;
     word-wrap: break-word;
+  }
+  .isReaded {
+    top: 10px;
+    right: 10px;
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #e80808;
+    border-radius: 25px;
+    box-shadow: 2px 2px 2px 1px rgba(255, 0, 0, 0.2);
   }
 </style>

@@ -108,7 +108,7 @@
   </div>
   <div style="width: 100%; display: flex; justify-content: center">
     <el-button :disabled="this.carInformation.titre === '' || this.carInformation.marque === '' || this.carInformation.modele === '' || this.carInformation.type === '' || this.carInformation.km === '' || this.carInformation.price === '' || this.carInformation.numOwner === '' || this.carInformation.state === ''" class="btn" type="success" @click="uploadImages('http://localhost:3000/annonce/create')" v-if="mode === 'create'">Envoyer</el-button>
-    <el-button :disabled="this.carInformation.titre === '' || this.carInformation.marque === '' || this.carInformation.modele === '' || this.carInformation.type === '' || this.carInformation.km === '' || this.carInformation.price === '' || this.carInformation.numOwner === '' || this.carInformation.state === ''" class="btn" type="success" @click="uploadImages('http://localhost:3000/annonce/modify')">Modifier</el-button>
+    <el-button :disabled="this.carInformation.titre === '' || this.carInformation.marque === '' || this.carInformation.modele === '' || this.carInformation.type === '' || this.carInformation.km === '' || this.carInformation.price === '' || this.carInformation.numOwner === '' || this.carInformation.state === ''" class="btn" type="success" @click="uploadImages('http://localhost:3000/annonce/modify')" v-if="mode === 'modify'">Modifier</el-button>
   </div>
   <Footer/>
 </template>
@@ -264,6 +264,7 @@ export default {
         formData.append('autonomie', this.carInformation.autonomie)
         formData.append('userId', this.userId)
         formData.append('annonceId', this.annonceId)
+        console.log(formData)
         axios.post(url, formData)
             .then((res) => {
               this.fileList = []
@@ -288,7 +289,6 @@ export default {
       }
     },
     fetchModelOptions(marque) {
-      if(this.activeWatcher === true){
         this.carInformation.modele = ""
         axios.get(`http://localhost:3000/options/getModele?marque=${marque}`)
             .then((response) => {
@@ -297,7 +297,6 @@ export default {
             .catch((error) => {
               console.log(error);
             });
-      }
     },
   },
   async mounted() {

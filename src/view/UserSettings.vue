@@ -3,30 +3,25 @@
   <h3>Ici, vous pouvez retrouver les informations personnelles lié à votre compte. Vous pouvez également les modifiers à votre guise.</h3>
   <p style="text-align: center">Photo de profil</p>
   <el-upload
-      ref="upload"
+      v-model:file-list="fileList"
       class="upload-demo"
-      action="http://www.localhost:3000/users/addPicture"
-      :data="{id: userData.id}"
-      :on-preview="handlePreview"
-      :on-remove="handleRemove"
+      action="http://localhost:3000/users/addPicture"
+      :auto-upload="false"
+      :on-success="handleUploadSuccess"
       :before-upload="beforeUpload"
-      :on-success="handleSuccess"
-      multiple="false"
-      :file-list="picture"
+      :on-preview="handlePreview"
       :list-type="'picture-card'"
-      :default-file-list="picture"
-      limit="1"
-      :auto-upload="false">
-    <template v-slot:trigger>
-      <el-button class="addPicture" size="small" type="primary">Ajouter vos photos</el-button>
-    </template>
+      :default-file-list="fileList"
+      :limit="15"
+  >
+    <el-icon class="avatar-uploader-icon">
+      <Plus />
+    </el-icon>
     <template v-slot:tip>
       <div class="el-upload__tip">Seulement des fichiers au format jpg/png avec une taille maximale de 2Mo</div>
     </template>
   </el-upload>
-  <div style="display: flex; justify-content: center;">
-    <el-button @click="submitUpload">Valider</el-button>
-  </div>
+  <el-button class="btn" type="success" @click="uploadImages">Envoyer</el-button>
   <el-divider/>
   <form class="user-informations">
     <div class="button">
@@ -55,16 +50,16 @@
     </div>
     <el-button type="danger" style="margin: 15px" @click="dialogBox = true">Supprimer mon compte</el-button>
     <el-dialog v-model="dialogBox" title="Attention" width="30%" center>
-    <span>Voulez-vous vraiment supprimer votre compte ?</span>
-    <template #footer>
+      <span>Voulez-vous vraiment supprimer votre compte ?</span>
+      <template #footer>
       <span class="dialog-footer">
         <el-button type="primary" @click="deleteAccount">
-          Confirm
+          Oui
         </el-button>
         <el-button @click="dialogBox = false">Annuler</el-button>
       </span>
-    </template>
-  </el-dialog>
+      </template>
+    </el-dialog>
   </form>
   <Footer/>
 </template>
@@ -75,14 +70,14 @@ import Footer from "@/components/Footer.vue";
 import {getToken, hasToken, logout} from "@/router/middleware";
 import {ElMessage} from "element-plus";
 import axios from "axios";
-
+import {Plus} from "@element-plus/icons-vue";
 export default {
   name: "UserSettings",
-  components: {Footer, Navbar},
+  components: {Plus, Footer, Navbar},
   data() {
     return {
+      fileList: [],
       dialogBox: false,
-      picture: [],
       userData: {
         id: "",
         phoneNumber: "",
@@ -105,40 +100,46 @@ export default {
     handlePreview(file) {
       window.open(file.url, '_blank');
     },
-    handleRemove(file, fileList) {
-      console.log('Fichier supprimé', file, fileList);
+    handleUploadSuccess(response) {
+      // Gérer la réponse du serveur en cas de succès
+      console.log('Image envoyée avec succès', response);
     },
     beforeUpload(file) {
-      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+      // Prévisualisation de l'image avant l'envoi
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        file.url = e.target.result;
+        file.uid = Date.now(); // Ajoute une clé unique à chaque fichier
+        this.fileList.push(file);
+        console.log("l'image est ajoutée !")
+      };
+      reader.readAsDataURL(file);
+      return false; // Empêche l'envoi automatique du fichier
+    },
+    uploadImages() {
+      if (this.fileList.length !== 0) {
+        const file = this.fileList[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64Image = reader.result.split(',')[1];
+          axios.post('http://localhost:3000/users/addPicture', { image: base64Image, id: this.userData.id})
+              .then((res) => {
+                this.fileList = []
+                ElMessage({
+                  showClose: true,
+                  message: res.data.message,
+                  type: "success"
+                })
+              })
+              .catch((error) => {
+                ElMessage.error({
+                  showClose: true,
+                  message: error
 
-      if (!isJPG) {
-        this.$message.error('Le fichier doit être au format JPG/PNG');
-      }
-      if (!isLt2M) {
-        this.$message.error('La taille du fichier ne doit pas dépasser 2 Mo');
-      }
-      return isJPG && isLt2M;
-    },
-    handleSuccess(response) {
-      if (response.path) {
-        ElMessage({
-          showClose: true,
-          message: 'Votre photo de profil à été chargé avec succès !',
-          type: "success"
-        })
-      } else {
-        ElMessage.error({
-          showClose: true,
-          message: 'Une erreur est survenue durant l\'envoie de la photo.'
-        })
-      }
-    },
-    async submitUpload() {
-      try {
-        await this.$refs.upload.submit();
-      } catch (err) {
-        console.log(err);
+                })
+              });
+        };
+        reader.readAsDataURL(file.raw);
       }
     },
     changePassword(){
@@ -182,9 +183,9 @@ export default {
             this.phoneNumber = ""
             this.reloadData()
           }).catch((err) => {
-            ElMessage.error({
-            showClose: true,
-            message: err.response.data.error
+        ElMessage.error({
+          showClose: true,
+          message: err.response.data.error
         })
       })
     },
@@ -201,9 +202,9 @@ export default {
             this.coords.city = ""
             this.reloadData()
           }).catch((err) => {
-            ElMessage.error({
-              showClose: true,
-              message: err.response.data.error
+        ElMessage.error({
+          showClose: true,
+          message: err.response.data.error
         })
       })
     },
@@ -219,10 +220,10 @@ export default {
             logout()
             this.$router.push('/')
           }).catch((err) => {
-            ElMessage.error({
-              showClose: true,
-              message: err
-            })
+        ElMessage.error({
+          showClose: true,
+          message: err
+        })
       })
     },
     reloadData(){
@@ -251,13 +252,15 @@ export default {
     axios.post("http://localhost:3000/token", token)
         .then((res) => {
           this.userData.id = res.data.token.id
-          axios.post('http://localhost:3000/users/data', res.data.token.id)
+          axios.post('http://localhost:3000/users/data', this.userData.id)
               .then((res) => {
+                console.log(res)
                 this.userData.phoneNumber = res.data.data.phoneNumber
                 this.userData.city = res.data.data.city
                 this.userData.postalCode = res.data.data.postalCode
               })
-              .catch(() =>{
+              .catch((err) =>{
+                console.log(err)
                 logout()
                 this.$router.push('/connexion')
               })
@@ -267,61 +270,61 @@ export default {
 </script>
 
 <style scoped>
-  .el-overlay {
-    max-width: 1000px;
-  }
-  h3 {
-    text-align: center;
-    margin: 20px;
-    font-size: 20px;
-  }
-  .upload-demo {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    margin: 10px;
-  }
-  .addPicture {
-    width: 125px;
-    height: 50px;
-    text-align: center;
-  }
-  .personnal-informations p {
-    margin: 10px;
-  }
-  .user-informations {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    flex-direction: column;
-  }
-  .button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+.el-overlay {
+  max-width: 1000px;
+}
+h3 {
+  text-align: center;
+  margin: 20px;
+  font-size: 20px;
+}
+.upload-demo {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+}
+.addPicture {
+  width: 125px;
+  height: 50px;
+  text-align: center;
+}
+.personnal-informations p {
+  margin: 10px;
+}
+.user-informations {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+.button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.button div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+  flex-wrap: wrap;
+}
+.user-informations p {
+  margin-top: 10px;
+  text-align: center;
+}
+.user-informations .el-input {
+  width: 250px;
+}
+.valid-btn {
+  position: relative;
+  bottom: 0;
+}
+@media screen and (max-width:830px) {
   .button div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 5px;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
-  .user-informations p {
-    margin-top: 10px;
-    text-align: center;
-  }
-  .user-informations .el-input {
-    width: 250px;
-  }
-  .valid-btn {
-    position: relative;
-    bottom: 0;
-  }
-  @media screen and (max-width:830px) {
-    .button div {
-      flex-direction: column;
-    }
-  }
+}
 </style>

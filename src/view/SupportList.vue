@@ -6,15 +6,15 @@
   <div class="ticket">
     <div>
       <p>Nom et prénom</p>
-      <el-input></el-input>
+      <el-input v-model="ticket.creator"></el-input>
     </div>
     <div>
       <p>Titre</p>
-      <el-input></el-input>
+      <el-input v-model="ticket.title"></el-input>
     </div>
     <div style="width: 100%">
       <p>Expliquer votre problème</p>
-      <textarea></textarea>
+      <textarea v-model="ticket.description"></textarea>
     </div>
     <el-button style="margin: 10px">Envoyer</el-button>
   </div>
@@ -47,12 +47,20 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
+import {getToken, hasToken} from "@/router/middleware";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 
 export default {
   name: "SupportList",
   components: {Footer, Navbar},
   data(){
     return {
+      ticket: {
+        title: "",
+        creator: "",
+        description: ""
+      },
       dataTable: [
         {
           id: 0,
@@ -73,6 +81,40 @@ export default {
           date: "13/04/2023"
         },
       ]
+    }
+  },
+  methods: {
+    createTicket(){
+      axios.post('http://localhost:3000/ticket', this.ticket)
+          .then((res) => {
+            ElMessage({
+              showClose: true,
+              type: "success",
+              message: res.data.message
+            })
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
+  },
+  mounted() {
+    if(hasToken()){
+      const token = getToken()
+      let id = null
+      axios.post("http://localhost:3000/token", token)
+          .then((res) => {
+            id = res.data.token.id.toString();
+            axios.post('http://localhost:3000/users/data', {userId: id})
+                .then((res) => {
+                  this.ticket.creator = res.data.data.firstName + " " + res.data.data.lastName
+                })
+                .catch((err) => {
+                  console.log(err)
+                })
+          })
+          .catch(() =>{
+          })
     }
   }
 }

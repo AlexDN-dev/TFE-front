@@ -24,9 +24,57 @@ import AdminSupportMessage from "@/view/admin/AdminSupportMessage.vue";
 import AdminNotification from "@/view/admin/AdminNotification.vue";
 import AdminGarage from "@/view/admin/AdminGarage.vue";
 import AdminParameters from "@/view/admin/AdminParameters.vue";
-import {getToken, logout} from "@/router/middleware";
+import {getToken, hasToken, logout} from "@/router/middleware";
 import {ElMessage} from "element-plus";
 import axios from "axios";
+import jwt from "jsonwebtoken";
+
+// Créez une instance de WebSocket
+let socket = null;
+
+// Définissez une fonction pour créer la connexion WebSocket
+function createWebSocketConnection() {
+    if(hasToken()){
+        const token = getToken()
+        const decoded = jwt.decode(token)
+        let userId = null
+        if(decoded !== null) {
+            userId = decoded.id
+        }
+        socket = new window.WebSocket('ws://localhost:3001');
+
+        // Gérez les événements WebSocket
+        socket.onopen = () => {
+            socket.send(JSON.stringify({ userId }));
+        };
+
+        socket.onclose = () => {
+        };
+
+        socket.onerror = (error) => {
+            console.error('Erreur WebSocket:', error);
+        };
+
+        socket.onmessage = (event) => {
+            const sound = new Audio(require('@/assets/notificationSound.mp3'))
+            sound.volume = 0.5
+            sound.play()
+            ElMessage({
+                showClose: true,
+                message: event.data,
+                type: "success"
+            })
+        };
+    }
+}
+
+// Créez une fonction pour fermer la connexion WebSocket
+function closeWebSocketConnection() {
+    if (socket) {
+        socket.close();
+        socket = null;
+    }
+}
 
 const router =createRouter({
     history: createWebHistory(),
@@ -83,9 +131,10 @@ const router =createRouter({
             beforeEnter: checkToken
         },
         {
-            path: '/notifications/id',
+            path: '/notifications/:id',
             component: Notification,
-            beforeEnter: checkToken
+            beforeEnter: checkToken,
+            props: true
         },
         {
             path: '/support',
@@ -149,6 +198,16 @@ const router =createRouter({
         }
     ]
 })
+
+router.beforeEach((to, from, next) => {
+    closeWebSocketConnection();
+    next();
+});
+
+// Écoutez l'événement de navigation 'afterEach' de Vue Router
+router.afterEach(() => {
+    createWebSocketConnection();
+});
 
 function checkToken(to, from, next) {
     const token = getToken()

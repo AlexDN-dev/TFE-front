@@ -47,7 +47,14 @@ export default {
     return {
       isConnected: false,
       isAdmin: false,
-      userId: null
+      userId: null,
+      socket: null
+    }
+  },
+  beforeUnmount() {
+    // Déconnectez-vous du serveur socket.io lorsque le composant est démonté
+    if (this.socket) {
+      this.socket.close();
     }
   },
   created() {

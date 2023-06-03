@@ -2,7 +2,7 @@
   <Navbar/>
   <div>
     <div class="informations-container">
-      <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" class="avatar"/>
+      <el-avatar :src="avatar" class="avatar"/>
       <div class="user-informations">
         <p>{{userData.firstname}} {{userData.lastname}}<span v-if="userData.age !== null">, {{userData.age}} ans</span></p>
         <div class="account-level">
@@ -62,11 +62,22 @@
             </router-link>
           </el-tooltip>
           <el-tooltip content="Supprimer" placement="right">
-            <div class="btn delete-account">
+            <div class="btn delete-account" @click="showDialog = true; selectedAnnonceId = annonce.id">
               <font-awesome-icon icon="fa-solid fa-trash" style="color: #ff2727;" />
             </div>
           </el-tooltip>
         </div>
+        <el-dialog v-model="showDialog" title="Warning" width="30%" center :lock-scroll="false" @close="showDialog = false">
+          <span style="text-align: center; display: block">
+            Voulez-vous vraiment supprimer cette annonce ?
+          </span>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="() => deleteAnnonce(selectedAnnonceId)">Oui</el-button>
+              <el-button @click="showDialog = false; selectedAnnonceId = null">Non</el-button>
+            </span>
+          </template>
+        </el-dialog>
       </div>
     </div>
   </div>
@@ -79,6 +90,7 @@ import Footer from "@/components/Footer.vue";
 import axios from "axios";
 import {hasToken, getToken} from "@/router/middleware";
 import AnnonceVoitureMini from "@/components/AnnonceVoitureMini.vue";
+import {ElMessage} from "element-plus";
 
 export default {
   name: "User",
@@ -99,12 +111,26 @@ export default {
         profilLevel: null
       },
       hisAccount: false,
-      annonceList: []
+      annonceList: [],
+      showDialog: false,
+      selectedAnnonceId: null,
+      avatar: null
     }
   },
   mounted() {
     axios.post('http://localhost:3000/users/data', {userId: this.userData.id})
         .then((res) => {
+          axios.get('http://localhost:3000/users/getPicture', {
+            params: {
+              userId: this.userData.id
+            }
+          })
+              .then((res) => {
+                this.avatar = res.data.message
+              })
+              .catch((err) => {
+                console.log(err)
+              })
           this.userData.firstname = res.data.data.firstName
           this.userData.lastname = res.data.data.lastName
           this.userData.profilLevel = res.data.data.profilLevel
@@ -139,6 +165,27 @@ export default {
         age--;
       }
       return age;
+    },
+    deleteAnnonce(){
+      this.showDialog = false
+      axios.get('http://localhost:3000/annonce/deleteAnnonce', {
+        params: {
+          id: this.selectedAnnonceId
+        }
+      })
+      .then((res) => {
+        console.log(res)
+        ElMessage({
+          showClose: true,
+          message: res.data.message,
+          type: "success"
+        })
+        const id = this.userData.id
+        this.$router.push('/user/' + id)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
     }
   }
 }
