@@ -1,31 +1,7 @@
 <template>
   <AdminNavBar/>
   <h2>Support</h2>
-  <h2>Les tickets en cours</h2>
-  <div class="data-container">
-    <el-table :data="itemsOnPage" class="dataTable">
-      <el-table-column prop="id" label="ID" align="center"></el-table-column>
-      <el-table-column prop="mail" label="Mail" align="center"></el-table-column>
-      <el-table-column prop="title" label="Titre" align="center"></el-table-column>
-      <el-table-column prop="lastSender" label="Dernière réponse" align="center"></el-table-column>
-      <el-table-column label="Action" align="center">
-        <template #default="scope">
-          <div>
-            <router-link to="/admin/support/id" class="router">
-              <el-button type="primary">
-                <font-awesome-icon icon="fa-solid fa-arrow-right" style="color: #ffffff;" />
-              </el-button>
-            </router-link>
-            <el-button type="danger">
-              <p>{{ scope.row.t }}</p>
-              <font-awesome-icon icon="fa-solid fa-trash" style="color: #ffffff;" />
-            </el-button>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
-  </div>
-  <h2>Les tickets fermés</h2>
+  <h2>Les tickets</h2>
   <div class="search">
     <el-input v-model="searchQuery" placeholder="Rechercher"></el-input>
     <div class="search-btn">
@@ -37,15 +13,23 @@
   <div class="data-container">
     <el-table :data="itemsOnPage" class="dataTable">
       <el-table-column prop="id" label="ID" align="center"></el-table-column>
-      <el-table-column prop="mail" label="Mail" align="center"></el-table-column>
+      <el-table-column prop="creator" label="Auteur" align="center"></el-table-column>
       <el-table-column prop="title" label="Titre" align="center"></el-table-column>
+      <el-table-column prop="isClose" label="Statut" align="center">
+        <template #default="scope">
+          <p v-if="scope.row.isClose === 1" class="closed">Fermé</p>
+          <p v-if="scope.row.isClose === 0" class="open">Ouvert</p>
+        </template>
+      </el-table-column>
       <el-table-column label="Action" align="center">
         <template #default="scope">
           <div>
-            <el-button type="primary">
-              <p>{{scope.row.t}}</p>
-              <font-awesome-icon icon="fa-solid fa-eye" style="color: #ffffff;" />
-            </el-button>
+            <router-link :to="'/admin/support/' + scope.row.id" class="router">
+              <el-button type="primary">
+                <p>{{scope.row.t}}</p>
+                <font-awesome-icon icon="fa-solid fa-eye" style="color: #ffffff;" />
+              </el-button>
+            </router-link>
           </div>
         </template>
       </el-table-column>
@@ -58,28 +42,19 @@
 import AdminNavBar from "@/components/admin/AdminNavBar.vue";
 import Footer from "@/components/Footer.vue";
 import {Back, Right} from "@element-plus/icons-vue";
+import axios from "axios";
+import {getToken} from "@/router/middleware";
 
 export default {
   name: "AdminSupportList",
   components: {Right, Back, Footer, AdminNavBar},
   data() {
     return {
+      idUser: null,
       searchQuery: '',
       currentPage: 1,
       itemsPerPage: 10,
-      items: [
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Utilisateur' },
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Utilisateur' },
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Administrateur' },
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Utilisateur' },
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Utilisateur' },
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Utilisateur' },
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Utilisateur' },
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Utilisateur' },
-        { id: 1, mail: 'alexdeneve@hotmail.be', title: 'Problème de connexion' ,status: 'Actif', lastSender: 'Utilisateur' },
-        { id: 2, mail: 'benoit@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 3, mail: 'mirko@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-      ]
+      items: []
     }
   },
   computed: {
@@ -89,8 +64,8 @@ export default {
       } else {
         const lowerCaseSearchQuery = this.searchQuery.toLowerCase();
         return this.items.filter(item => {
-          return item.mail.toLowerCase().includes(lowerCaseSearchQuery) ||
-              item.name.toLowerCase().includes(lowerCaseSearchQuery);
+          return item.creator.toLowerCase().includes(lowerCaseSearchQuery) ||
+              item.title.toLowerCase().includes(lowerCaseSearchQuery);
         });
       }
     },
@@ -114,6 +89,26 @@ export default {
         this.currentPage--;
       }
     }
+  },
+  mounted() {
+    const token = getToken()
+    axios.post("http://localhost:3000/token", token)
+        .then((res) => {
+          this.idUser = res.data.token.id.toString();
+          axios.get('http://localhost:3000/ticket/admin/getAllTickets', {
+            params: {
+              id: this.idUser
+            }
+          })
+              .then((res) => {
+                this.items = res.data.response.rows
+              })
+              .catch((err) => {
+                console.log(err)
+              })
+        })
+        .catch(() =>{
+        })
   }
 }
 </script>

@@ -138,11 +138,14 @@ const router =createRouter({
         },
         {
             path: '/support',
-            component: SupportList
+            component: SupportList,
+            beforeEnter: checkToken,
         },
         {
-            path: '/support/id',
-            component: Support
+            path: '/support/:id',
+            component: Support,
+            beforeEnter: checkToken,
+            props: true
         },
         {
             path: '/connexion',
@@ -177,9 +180,10 @@ const router =createRouter({
             beforeEnter: checkToken
         },
         {
-            path: "/admin/support/id",
+            path: "/admin/support/:id",
             component: AdminSupportMessage,
-            beforeEnter: checkToken
+            beforeEnter: checkToken,
+            props: true
         },
         {
             path: "/admin/notification",
