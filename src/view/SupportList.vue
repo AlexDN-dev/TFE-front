@@ -16,7 +16,7 @@
       <p>Expliquer votre problème</p>
       <textarea v-model="ticket.description"></textarea>
     </div>
-    <el-button style="margin: 10px">Envoyer</el-button>
+    <el-button style="margin: 10px" @click="createTicket">Envoyer</el-button>
   </div>
   <el-divider/>
   <h2>Vos tickets</h2>
@@ -24,17 +24,17 @@
     <div class="tickets">
       <el-table :data="dataTable" style="min-width: 320px; max-width: 700px" height="350">
         <el-table-column prop="title" label="Titre" align="center"/>
-        <el-table-column prop="status" label="Status" align="center" width="110px">
+        <el-table-column prop="isClose" label="Statut" align="center" width="110px">
 
           <template #default="scope">
-            <p class="closed">{{scope.row.status}}</p>
+            <p v-if="scope.row.isClose === 1" class="closed">Fermé</p>
+            <p v-if="scope.row.isClose === 0" class="open">Ouvert</p>
           </template>
         </el-table-column>
-        <el-table-column prop="date" label="Date" align="center"/>
         <el-table-column label="Action" align="center">
           <template #default="scope">
-            <router-link to="/support/id" class="router">
-              <el-button type="info" plain>{{scope.row.id}}</el-button>
+            <router-link :to="'/support/' + scope.row.id" class="router">
+              <el-button type="info" plain>Ouvrir</el-button>
             </router-link>
           </template>
         </el-table-column>
@@ -56,58 +56,61 @@ export default {
   components: {Footer, Navbar},
   data(){
     return {
+      idUser: null,
       ticket: {
         title: "",
         creator: "",
         description: ""
       },
-      dataTable: [
-        {
-          id: 0,
-          title: "titre",
-          status: "Fermé",
-          date: "13/04/2023"
-        },
-        {
-          id: 1,
-          title: "titre",
-          status: "Ouvert",
-          date: "13/04/2023"
-        },
-        {
-          id: 2,
-          title: "titre",
-          status: "Ouvert",
-          date: "13/04/2023"
-        },
-      ]
+      dataTable: []
     }
   },
   methods: {
     createTicket(){
-      axios.post('http://localhost:3000/ticket', this.ticket)
-          .then((res) => {
-            ElMessage({
-              showClose: true,
-              type: "success",
-              message: res.data.message
+      if(this.ticket.creator === "" || this.ticket.title === "" || this.ticket.description === ""){
+        ElMessage.error({
+          showClose: true,
+          message: "Merci de remplir tous les champs !"
+        })
+      }else {
+        axios.post('http://localhost:3000/ticket', {ticket: this.ticket, idUser: this.idUser})
+            .then((res) => {
+              ElMessage({
+                showClose: true,
+                type: "success",
+                message: res.data.message
+              })
+              this.ticket.creator = ""
+              this.ticket.description = ""
+              this.ticket.title = ""
             })
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+            .catch((err) => {
+              console.log(err)
+            })
+      }
     }
   },
   mounted() {
     if(hasToken()){
       const token = getToken()
-      let id = null
       axios.post("http://localhost:3000/token", token)
           .then((res) => {
-            id = res.data.token.id.toString();
-            axios.post('http://localhost:3000/users/data', {userId: id})
+            this.idUser = res.data.token.id.toString();
+            axios.post('http://localhost:3000/users/data', {userId: this.idUser})
                 .then((res) => {
                   this.ticket.creator = res.data.data.firstName + " " + res.data.data.lastName
+                  axios.get('http://localhost:3000/ticket', {
+                    params: {
+                      id: this.idUser
+                    }
+                  })
+                      .then((res) => {
+                        this.dataTable = res.data.response.rows
+                        console.log(this.dataTable)
+                      })
+                      .catch((err) => {
+                        console.log(err)
+                      })
                 })
                 .catch((err) => {
                   console.log(err)
