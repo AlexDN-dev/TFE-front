@@ -4,7 +4,7 @@
   <div class="search">
     <div style="display: flex; flex-wrap: wrap; justify-content: center; width: auto">
       <el-input v-model="searchQuery" placeholder="Rechercher"></el-input>
-      <el-button style="margin-left: 10px" bg text>Les annonces à valider</el-button>
+      <el-checkbox v-model="filterState" style="margin-left: 10px" bg text>Les annonces à valider</el-checkbox>
     </div>
     <div class="search-btn">
       <el-button @click="previousPage" :disabled="currentPage === 1"><el-icon><Back /></el-icon></el-button>
@@ -16,42 +16,66 @@
     <el-table :data="itemsOnPage" class="dataTable">
       <el-table-column prop="id" label="ID" align="center"></el-table-column>
       <el-table-column prop="title" label="Titre" align="center"></el-table-column>
-      <el-table-column prop="owner" label="Propriétaire" align="center"></el-table-column>
-      <el-table-column label="Statut" align="center">
+      <el-table-column prop="id_owner" label="Propriétaire" align="center"></el-table-column>
+      <el-table-column prop="state" label="Propriétaire" align="center">
         <template #default="scope">
-          <p class="closed">{{scope.row.status}}</p>
+          <p v-if="scope.row.state === 0">Non validé</p>
+          <p v-if="scope.row.state === 1">Validé</p>
+          <p v-if="scope.row.state === -1">Supprimé</p>
         </template>
       </el-table-column>
       <el-table-column label="Action" align="center">
         <template #default="scope">
           <div style="display: flex; flex-wrap: wrap; justify-content: center">
-            <router-link to="/admin/annonce" class="router">
-              <el-button type="primary">
+              <el-button type="primary" @click="getCarDetails(scope.row.id)">
+                {{scope.row.date}}
                 <font-awesome-icon :icon="['fas', 'eye']" style="color: #ffffff;" />
               </el-button>
-            </router-link>
-            <router-link to="/admin/annonce" class="router">
-              <el-button type="info">
-                <font-awesome-icon icon="fa-solid fa-repeat" style="color: #ffffff;" />
-                {{scope.row.date}}</el-button>
-            </router-link>
-            <router-link to="/admin/annonce" class="router">
-              <el-button type="danger">
-                <font-awesome-icon icon="fa-solid fa-trash" style="color: #ffffff;" />
-              </el-button>
-            </router-link>
           </div>
         </template>
       </el-table-column>
     </el-table>
   </div>
   <Footer/>
+  <el-dialog v-model="showDialog" title="Information" width="30%" center :lock-scroll="false" @close="showDialog = false">
+          <span style="text-align: center; display: flex; flex-direction: column; gap: 5px">
+            <span>ID : {{carData.id}}</span>
+            <span>Titre : {{carData.title}}</span>
+            <span>Marque : {{carData.marque}}</span>
+            <span>Modèle : {{carData.model}}</span>
+            <span>Type : {{carData.type}}</span>
+            <span v-if="carData.state === 0">Statut : Non validé</span>
+            <span v-if="carData.state === 1">Statut : Validé</span>
+            <span v-if="carData.state === -1">Statut : Supprimé</span>
+            <span>État : {{carData.status}}</span>
+            <span>Prix : {{carData.price}} €</span>
+            <span>Kilométrage : {{carData.km}} km</span>
+
+          </span>
+    <template #footer>
+      <div class="dialog-footer">
+        <div class="checkbox-container">
+          <el-checkbox v-model="enableButton" v-if="carData.state !== -1">Cocher pour activer les boutons</el-checkbox>
+        </div>
+        <div class="button-container">
+          <el-button :disabled="!enableButton" v-if="carData.state === 0" @click="valideAnnonce(carData.id)">Valider</el-button>
+          <el-button :disabled="!enableButton" v-if="carData.state === 1" @click="hideAnnonce(carData.id)">Cacher</el-button>
+          <el-button :disabled="!enableButton" v-if="carData.state !== -1" @click="deleteAnnonce(carData.id)">Supprimer</el-button>
+          <router-link :to="`/annonce/voiture/${carData.id}`" style="margin-left: 15px">
+            <el-button v-if="carData.state !== -1">Voir</el-button>
+          </router-link>
+        </div>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
 import AdminNavBar from "@/components/admin/AdminNavBar.vue";
 import Footer from "@/components/Footer.vue";
 import {Back, Right} from "@element-plus/icons-vue";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 
 export default {
   name: "AdminAnnonce",
@@ -61,68 +85,21 @@ export default {
       searchQuery: '',
       currentPage: 1,
       itemsPerPage: 10,
-      items: [
-        { id: 1, title: 'Element 1', status: 'Oui' ,owner: 'Owner 1' },
-        { id: 2, title: 'Element 2', owner: 'Owner 2' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 4, title: 'Element 3', owner: 'Owner 3' },
-        { id: 5, title: 'Element 3', owner: 'Owner 3' },
-        { id: 6, title: 'Element 3', owner: 'Owner 3' },
-        { id: 7, title: 'Element 3', owner: 'Owner 3' },
-        { id: 8, title: 'Element 3', owner: 'Owner 3' },
-        { id: 9, title: 'Element 3', owner: 'Owner 3' },
-        { id: 10, title: 'Element 3', owner: 'Owner 3' },
-        { id: 11, title: 'Element 3', owner: 'Owner 3' },
-        { id: 12, title: 'Element 3', owner: 'Owner 3' },
-        { id: 13, title: 'Element 3', owner: 'Owner 3' },
-        { id: 14, title: 'Element 3', owner: 'Owner 3' },
-        { id: 15, title: 'Element 3', owner: 'Owner 3' },
-        { id: 16, title: 'Element 3', owner: 'Owner 3' },
-        { id: 17, title: 'Element 3', owner: 'Owner 3' },
-        { id: 18, title: 'Element 3', owner: 'Owner 3' },
-        { id: 19, title: 'Element 3', owner: 'Owner 3' },
-        { id: 20, title: 'Element 3', owner: 'Owner 3' },
-        { id: 21, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 3, title: 'Element 3', owner: 'Owner 3' },
-        { id: 40, title: 'Element 40', owner: 'Owner 40' },
-        { id: 41, title: 'Element 40', owner: 'Owner 40' },
-        { id: 42, title: 'Element 40', owner: 'Owner 40' },
-        { id: 43, title: 'Element 40', owner: 'Owner 40' },
-        { id: 44, title: 'Element 40', owner: 'Owner 40' },
-      ]
+      items: [],
+      filterState: false,
+      carData: {},
+      showDialog: false,
+      enableButton: false
     }
   },
   computed: {
     filteredItems() {
-      if (this.searchQuery === '') {
-        return this.items;
-      } else {
-        const lowerCaseSearchQuery = this.searchQuery.toLowerCase();
-        return this.items.filter(item => {
-          return item.title.toLowerCase().includes(lowerCaseSearchQuery) ||
-              item.owner.toLowerCase().includes(lowerCaseSearchQuery);
-        });
-      }
+      return this.items.filter(item => {
+        const matchesSearchQuery = this.searchQuery === '' ||
+            item.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+        const matchesFilterState = !this.filterState || item.state === 0;
+        return matchesSearchQuery && matchesFilterState;
+      });
     },
     totalPages() {
       return Math.ceil(this.filteredItems.length / this.itemsPerPage);
@@ -131,7 +108,7 @@ export default {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
       return this.filteredItems.slice(startIndex, endIndex);
-    }
+    },
   },
   methods: {
     nextPage() {
@@ -143,7 +120,76 @@ export default {
       if (this.currentPage > 1) {
         this.currentPage--;
       }
+    },
+    getCarDetails(id){
+      axios.post('http://localhost:3000/annonce', {idAnnonce: id})
+          .then((res) => {
+            this.carData = res.data.response.rows[0]
+            this.showDialog = true
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
+    valideAnnonce(id){
+      axios.post('http://localhost:3000/annonce/valideAnnonce', {id: id})
+          .then((res) => {
+            ElMessage({
+              showClose: true,
+              message: res.data.message,
+              type: "success"
+            })
+            this.showDialog = false
+            this.$router.go()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
+    hideAnnonce(id){
+      axios.post('http://localhost:3000/annonce/hideAnnonce', {id: id})
+          .then((res) => {
+            ElMessage({
+              showClose: true,
+              message: res.data.message,
+              type: "success"
+            })
+            this.showDialog = false
+            this.$router.go()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
+    deleteAnnonce(id){
+      axios.get('http://localhost:3000/annonce/deleteAnnonce', {
+        params: {
+          id: id
+        }
+      })
+          .then((res) => {
+            ElMessage({
+              showClose: true,
+              message: res.data.message,
+              type: "success"
+            })
+            this.showDialog = false
+            this.$router.go()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
     }
+  },
+  mounted() {
+    axios.get('http://localhost:3000/annonce/getAllAnnonce')
+        .then((res) => {
+          this.items = res.data.response.rows
+          this.items.sort((a, b) => a.id - b.id);
+        })
+        .catch((err) => {
+          console.log(err)
+        })
   }
 }
 </script>
