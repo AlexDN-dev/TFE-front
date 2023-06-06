@@ -41,6 +41,20 @@ export default {
     },
     UserFilled() {
       return UserFilled
+    },
+    checkConnect() {
+      return !(localStorage.getItem('token') === null && sessionStorage.getItem('token') === null);
+    },
+    checkAdmin() {
+      let token = window.sessionStorage.getItem('token');
+      if (token === null) {
+        token = window.localStorage.getItem('token');
+      }
+      const decoded = jwt.decode(token);
+      if (decoded !== null) {
+        return decoded.permission === 10;
+      }
+      return false;
     }
   },
   data() {
@@ -58,18 +72,8 @@ export default {
     }
   },
   created() {
-    let token = window.sessionStorage.getItem('token')
-    if(token === null){
-      token = window.localStorage.getItem('token')
-    }
-    this.isConnected = !!token
-    const decoded = jwt.decode(token)
-    if(decoded !== null) {
-      this.userId = decoded.id
-      if(decoded.permission === 10){
-        this.isAdmin = true
-      }
-    }
+    this.isConnected = this.checkConnect;
+    this.isAdmin = this.checkAdmin;
   },
   methods: {
     logout() {
@@ -82,7 +86,7 @@ export default {
         message: "Déconnexion effectué !",
         type: "success"
       })
-      this.$router.push('/')
+      this.$router.push('/connexion')
     }
   },
 }

@@ -56,14 +56,23 @@ function createWebSocketConnection() {
         };
 
         socket.onmessage = (event) => {
-            const sound = new Audio(require('@/assets/notificationSound.mp3'))
-            sound.volume = 0.5
-            sound.play()
-            ElMessage({
-                showClose: true,
-                message: event.data,
-                type: "success"
-            })
+            if(event.data === "Vous avez été déconnecté car votre compte a été modifié."){
+                logout()
+                ElMessage.error({
+                    showClose: true,
+                    message: event.data,
+                })
+                router.push('/connexion')
+            }else {
+                const sound = new Audio(require('@/assets/notificationSound.mp3'))
+                sound.volume = 0.5
+                sound.play()
+                ElMessage({
+                    showClose: true,
+                    message: event.data,
+                    type: "success"
+                })
+            }
         };
     }
 }
@@ -216,8 +225,19 @@ router.afterEach(() => {
 function checkToken(to, from, next) {
     const token = getToken()
     axios.post("http://localhost:3000/token", token)
-        .then(() => {
-            next()
+        .then((res) => {
+            if (to.path.includes('admin')) {
+                if(res.data.token.permission !== 10){
+                    ElMessage.error({
+                        message: "Vous n'êtes pas administrateur !",
+                        showClose: true
+                    })
+                    router.push('/')
+                }else {
+                    next()
+                }
+            }
+            next();
         })
         .catch((err) => {
             console.log(err)

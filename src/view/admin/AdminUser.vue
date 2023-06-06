@@ -13,16 +13,18 @@
     <el-table :data="itemsOnPage" class="dataTable">
       <el-table-column prop="id" label="ID" align="center"></el-table-column>
       <el-table-column prop="mail" label="Mail" align="center"></el-table-column>
-      <el-table-column prop="name" label="Nom" align="center"></el-table-column>
+      <el-table-column prop="firstName" label="Prénom" align="center"></el-table-column>
+      <el-table-column prop="lastName" label="Nom" align="center"></el-table-column>
       <el-table-column label="Statut" align="center">
         <template #default="scope">
-          <p class="closed">{{scope.row.status}}</p>
+          <p v-if="scope.row.permission === 0">Utilisateur</p>
+          <p v-if="scope.row.permission === 10">Administrateur</p>
         </template>
       </el-table-column>
       <el-table-column label="Action" align="center">
         <template #default="scope">
           <div>
-            <el-button type="primary">
+            <el-button type="primary" @click="getUserDetails(scope.row.id)">
               <p>{{ scope.row.t }}</p>
               <font-awesome-icon :icon="['fas', 'eye']" style="color: #ffffff;" />
             </el-button>
@@ -31,6 +33,30 @@
       </el-table-column>
     </el-table>
   </div>
+  <el-dialog v-model="showDialog" title="Information" width="30%" center :lock-scroll="false" @close="showDialog = false">
+          <span style="text-align: center; display: flex; flex-direction: column; gap: 5px">
+            <span>ID : {{userData.id}}</span>
+            <span>Nom : {{userData.lastName}}</span>
+            <span>Prénom : {{userData.firstName}}</span>
+            <span>Mail : {{userData.mail}}</span>
+            <span>Ville : {{userData.city}}</span>
+            <span v-if="userData.permission === 0">Statut : Utilisateur</span>
+            <span v-if="userData.permission === 10">Statut : Administrateur</span>
+          </span>
+    <template #footer>
+      <div class="dialog-footer">
+        <div class="checkbox-container">
+          <el-checkbox v-model="enableButton">Cocher pour activer les boutons</el-checkbox>
+        </div>
+        <div class="button-container">
+          <el-button v-if="userData.permission === 0" :disabled="!enableButton" @click="setAdmin(userData.id)">Passer administrateur</el-button>
+          <el-button v-if="userData.permission === 10" :disabled="!enableButton" @click="setUser(userData.id)">Passer utilisateur</el-button>
+          <el-button v-if="userData.profilLevel !== -1" :disabled="!enableButton" @click="banUser(userData.id)">Bannir</el-button>
+          <el-button v-if="userData.profilLevel === -1" :disabled="!enableButton" @click="unbanUser(userData.id)">Débannir</el-button>
+        </div>
+      </div>
+    </template>
+  </el-dialog>
   <Footer/>
 </template>
 
@@ -38,6 +64,8 @@
 import AdminNavBar from "@/components/admin/AdminNavBar.vue";
 import Footer from "@/components/Footer.vue";
 import {Back, Right} from "@element-plus/icons-vue";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 
 export default {
   name: "AdminUser",
@@ -47,26 +75,10 @@ export default {
       searchQuery: '',
       currentPage: 1,
       itemsPerPage: 10,
-      items: [
-        { id: 1, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 2, mail: 'benoit@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 3, mail: 'mirko@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 4, mail: 'anthony@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 5, mail: 'colleen@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 6, mail: 'mathieu@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 7, mail: 'jacques@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 8, mail: 'arthur@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 9, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 10, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 11, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 12, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 13, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 14, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 15, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 16, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 17, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-        { id: 18, mail: 'alexdeneve@hotmail.be', name: 'De Nève Alexandre' ,status: 'Actif' },
-      ]
+      items: [],
+      userData: {},
+      showDialog: false,
+      enableButton: false
     }
   },
   computed: {
@@ -77,7 +89,7 @@ export default {
         const lowerCaseSearchQuery = this.searchQuery.toLowerCase();
         return this.items.filter(item => {
           return item.mail.toLowerCase().includes(lowerCaseSearchQuery) ||
-              item.name.toLowerCase().includes(lowerCaseSearchQuery);
+              item.lastName.toLowerCase().includes(lowerCaseSearchQuery);
         });
       }
     },
@@ -100,7 +112,87 @@ export default {
       if (this.currentPage > 1) {
         this.currentPage--;
       }
+    },
+    getUserDetails(user){
+      axios.post('http://localhost:3000/users/data', {userId: user})
+          .then((res) => {
+            this.userData = res.data.data
+            this.showDialog = true
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
+    setAdmin(id){
+      axios.post('http://localhost:3000/users/setAdmin', {userId: id})
+          .then(() => {
+            ElMessage({
+              showClose: true,
+              message: "L'utilisateur " + id + " est maintenant Administrateur.",
+              type: "success"
+            })
+            this.showDialog = false
+            this.$router.go('/')
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
+    setUser(id){
+      axios.post('http://localhost:3000/users/setUser', {userId: id})
+          .then(() => {
+            ElMessage({
+              showClose: true,
+              message: "L'utilisateur " + id + " est maintenant un utilisateur.",
+              type: "success"
+            })
+            this.showDialog = false
+            this.$router.go('/')
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
+    banUser(id){
+      axios.post('http://localhost:3000/users/banUser', {userId: id})
+          .then(() => {
+            ElMessage({
+              showClose: true,
+              message: "L'utilisateur " + id + " est maintenant banni.",
+              type: "success"
+            })
+            this.showDialog = false
+            this.$router.go('/')
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
+    unbanUser(id){
+      axios.post('http://localhost:3000/users/unbanUser', {userId: id})
+          .then(() => {
+            ElMessage({
+              showClose: true,
+              message: "L'utilisateur " + id + " est maintenant débanni.",
+              type: "success"
+            })
+            this.showDialog = false
+            this.$router.go('/')
+          })
+          .catch((err) => {
+            console.log(err)
+          })
     }
+  },
+  mounted() {
+    axios.get('http://localhost:3000/users')
+        .then((res) => {
+          this.items = res.data.rows
+          this.items.sort((a, b) => a.id - b.id);
+        })
+        .catch((err) => {
+          console.log(err)
+        })
   }
 }
 </script>
@@ -135,6 +227,15 @@ h2 {
 }
 .data-container {
   width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.checkbox-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.button-container {
   display: flex;
   justify-content: center;
 }
