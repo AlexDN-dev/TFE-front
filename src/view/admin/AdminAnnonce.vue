@@ -140,6 +140,7 @@ export default {
               type: "success"
             })
             this.showDialog = false
+            axios.post('http://localhost:3000/notifications/', {receiver: this.carData.id_owner, titre: "Validation d'annonce", texte: "Votre annonce portant le titre de '" + this.carData.title + "' a bien été validé par un administrateur."})
             this.$router.go()
           })
           .catch((err) => {
@@ -155,6 +156,8 @@ export default {
               type: "success"
             })
             this.showDialog = false
+            axios.post('http://localhost:3000/notifications/', {receiver: this.carData.id_owner, titre: "Perte de statut", texte: "Votre annonce portant le titre de '" + this.carData.title + "' a été caché à la vue des autres par un administrateur."})
+
             this.$router.go()
           })
           .catch((err) => {
@@ -174,6 +177,7 @@ export default {
               type: "success"
             })
             this.showDialog = false
+            axios.post('http://localhost:3000/notifications/', {receiver: this.carData.id_owner, titre: "Suppression d'annonce", texte: "Votre annonce portant le titre de '" + this.carData.title + "' a été supprimé par un administrateur."})
             this.$router.go()
           })
           .catch((err) => {

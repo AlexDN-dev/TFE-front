@@ -4,11 +4,9 @@ import Accueil from "@/view/Accueil.vue";
 import Recherche from "@/view/Recherche.vue";
 import ListeRecherche from "@/view/ListeRecherche.vue";
 import AnnonceVoiture from "@/view/AnnonceVoiture.vue";
-import AnnonceGarage from "@/view/AnnonceGarage.vue";
 import User from "@/view/User.vue";
 import CreateAnnonce from "@/view/CreateAnnonce.vue";
 import UserSettings from "@/view/UserSettings.vue";
-import GarageSettings from "@/view/GarageSettings.vue";
 import NotificationList from "@/view/NotificationList.vue";
 import Notification from "@/view/Notification.vue"
 import SupportList from "@/view/SupportList.vue";
@@ -22,7 +20,6 @@ import AdminUser from "@/view/admin/AdminUser.vue";
 import AdminSupportList from "@/view/admin/AdminSupportList.vue";
 import AdminSupportMessage from "@/view/admin/AdminSupportMessage.vue";
 import AdminNotification from "@/view/admin/AdminNotification.vue";
-import AdminGarage from "@/view/admin/AdminGarage.vue";
 import AdminParameters from "@/view/admin/AdminParameters.vue";
 import {getToken, hasToken, logout} from "@/router/middleware";
 import {ElMessage} from "element-plus";
@@ -106,10 +103,6 @@ const router =createRouter({
             props: true
         },
         {
-            path: '/annonce/garage',
-            component: AnnonceGarage
-        },
-        {
             path: '/user/:id',
             component: User,
             props: true
@@ -127,11 +120,6 @@ const router =createRouter({
         {
             path: '/user/:idUser/modifyAnnonce/:id',
             component: CreateAnnonce,
-            beforeEnter: checkToken
-        },
-        {
-            path: '/garageSettings',
-            component: GarageSettings,
             beforeEnter: checkToken
         },
         {
@@ -200,11 +188,6 @@ const router =createRouter({
             beforeEnter: checkToken
         },
         {
-            path: "/admin/garage",
-            component: AdminGarage,
-            beforeEnter: checkToken
-        },
-        {
             path: "/admin/parametres",
             component: AdminParameters,
             beforeEnter: checkToken
@@ -227,27 +210,29 @@ function checkToken(to, from, next) {
     axios.post("http://localhost:3000/token", token)
         .then((res) => {
             if (to.path.includes('admin')) {
-                if(res.data.token.permission !== 10){
+                if (res.data.token.permission !== 10) {
                     ElMessage.error({
                         message: "Vous n'êtes pas administrateur !",
                         showClose: true
                     })
                     router.push('/')
-                }else {
+                } else {
                     next()
                 }
+            } else {
+                next()
             }
-            next();
         })
         .catch((err) => {
             console.log(err)
             ElMessage.error({
-                message: "Vous n'êtes pas connecté ou votre session à expiré.",
+                message: "Vous n'êtes pas connecté ou votre session a expiré.",
                 showClose: true
             })
             logout()
             next('/connexion');
         })
 }
+
 
 export default router

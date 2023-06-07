@@ -74,6 +74,14 @@ export default {
   created() {
     this.isConnected = this.checkConnect;
     this.isAdmin = this.checkAdmin;
+    let token = window.sessionStorage.getItem('token');
+    if (token === null) {
+      token = window.localStorage.getItem('token');
+    }
+    const decoded = jwt.decode(token);
+    if(decoded !== null){
+      this.userId = decoded.id
+    }
   },
   methods: {
     logout() {

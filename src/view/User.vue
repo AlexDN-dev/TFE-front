@@ -114,7 +114,8 @@ export default {
       annonceList: [],
       showDialog: false,
       selectedAnnonceId: null,
-      avatar: null
+      avatar: null,
+      idVisitor: null
     }
   },
   mounted() {
@@ -142,13 +143,16 @@ export default {
             axios.post("http://localhost:3000/token", token)
                 .then((res) => {
                   this.hisAccount = this.id === res.data.token.id.toString();
+                  this.idVisitor = res.data.token.id
                 })
                 .catch(() =>{
                 })
           }
-          axios.post('http://localhost:3000/annonce/getAnnonce', {userId: this.userData.id})
+          axios.post('http://localhost:3000/annonce/getAnnonce', {userId: this.userData.id, visitor: this.idVisitor})
               .then((res) => {
-                this.annonceList = res.data
+                if(res.data !== "l'utilisateur n'a pas d'annonce."){
+                  this.annonceList = res.data
+                }
               })
               .catch((err) => {
                 console.log(err)

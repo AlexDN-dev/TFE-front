@@ -3,15 +3,8 @@
     <div class="title">
       <h2>Page recherche</h2>
       <p>Voici une multitudes de filtres que vous pouvez remplir afin d'affiner vos recherches dans les annonces.</p>
-      <h3>Vous recherchez...</h3>
-      <div class="selectMode">
-        <p>Une annonce</p>
-        <el-button id="selectModeButton" :icon="Back" bg text circle @click="swapMode"></el-button>
-        <p>Une concession</p>
-      </div>
     </div>
     <RechercheVoiture v-if="!searchGarage"/>
-    <RechercheConcession v-if="searchGarage"/>
   <Footer/>
 </template>
 
@@ -20,7 +13,6 @@ import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
 import RechercheVoiture from "@/components/RechercheVoiture.vue";
 import {Back} from "@element-plus/icons-vue";
-import RechercheConcession from "@/components/RechercheConcession.vue";
 
   export default {
     name: "Recherche",
@@ -29,7 +21,7 @@ import RechercheConcession from "@/components/RechercheConcession.vue";
         return Back
       }
     },
-    components: {RechercheConcession, RechercheVoiture, Footer, Navbar},
+    components: {RechercheVoiture, Footer, Navbar},
     data(){
       return {
         searchGarage: false
